@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
+import com.java.medtrach.common.ValidatePharmacyInput;
 import com.java.medtrach.model.PharmacyModel;
 
 public class AddPharmacyActivity extends AppCompatActivity {
@@ -27,6 +28,8 @@ public class AddPharmacyActivity extends AppCompatActivity {
     private PharmacyModel pharmacyModel;
 
     private String pharmacyName, pharmacyDescription, pharmacyLocation;
+    
+    private ValidatePharmacyInput validatePharmacyInput;
 
     private FirebaseDatabase mDatabase;
     private DatabaseReference pharmacyReference;
@@ -36,6 +39,9 @@ public class AddPharmacyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_pharmacy);
         initializeContent();
+        
+        validatePharmacyInput = new ValidatePharmacyInput(AddPharmacyActivity.this,
+                pharmacyNameEditText, pharmacyDescriptionEditText);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,25 +66,34 @@ public class AddPharmacyActivity extends AppCompatActivity {
         pharmacyName = pharmacyNameEditText.getText().toString();
         pharmacyDescription = pharmacyDescriptionEditText.getText().toString();
         pharmacyLocation = pharmacyLocationEditText.getText().toString();
+        
+        boolean verifiedPharmacyName = validatePharmacyInput.validatePharmacyName();
+        boolean verifiedPharmacyDescription = validatePharmacyInput.validatePharmacyDescription();
+        
+        if(verifiedPharmacyName && verifiedPharmacyDescription) {
+            pharmacyModel = new PharmacyModel();
 
-        pharmacyModel = new PharmacyModel();
+            pharmacyModel.setPharmacyId(pharmacyId);
+            pharmacyModel.setPharmacyName(pharmacyName);
+            pharmacyModel.setPharmacyDescription(pharmacyDescription);
+            pharmacyModel.setPharmacyLocation(pharmacyLocation);
 
-        pharmacyModel.setPharmacyId(pharmacyId);
-        pharmacyModel.setPharmacyName(pharmacyName);
-        pharmacyModel.setPharmacyDescription(pharmacyDescription);
-        pharmacyModel.setPharmacyLocation(pharmacyLocation);
+            pharmacyReference.child(pharmacyId).setValue(pharmacyModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(AddPharmacyActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(AddPharmacyActivity.this, "Failed to add entry.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(this, "Test", Toast.LENGTH_SHORT).show();
+        }
 
-        pharmacyReference.child(pharmacyId).setValue(pharmacyModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(AddPharmacyActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddPharmacyActivity.this, "Failed to add entry.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        
     }
 
 

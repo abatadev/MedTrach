@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
+import com.java.medtrach.common.ValidateDrugInput;
 import com.java.medtrach.model.DrugModel;
 
 public class AddDrugActivity extends AppCompatActivity {
@@ -23,7 +24,8 @@ public class AddDrugActivity extends AppCompatActivity {
     private String drugName, drugDescription, drugPharmacy;
     private DatabaseReference drugReference;
     private FirebaseDatabase mDatabase;
-
+    
+    ValidateDrugInput validateDrugInput;
     DrugModel drugModel;
 
     EditText drugNameEditText, drugDescriptionEditText, drugPharmacyEditText;
@@ -35,6 +37,9 @@ public class AddDrugActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_drug);
         initializeContent();
 
+        validateDrugInput = new ValidateDrugInput(
+                AddDrugActivity.this, drugNameEditText, drugDescriptionEditText
+        );
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,25 +63,34 @@ public class AddDrugActivity extends AppCompatActivity {
         drugName = drugNameEditText.getText().toString().trim();
         drugDescription = drugDescriptionEditText.getText().toString().trim();
         drugPharmacy = drugPharmacyEditText.getText().toString().trim();
+        
+        boolean drugNameVerified = validateDrugInput.validateDrugName();
+        boolean drugDescriptionVerified = validateDrugInput.validateDrugDescription();
+        
+        if(drugNameVerified && drugDescriptionVerified) {
+            drugModel = new DrugModel();
 
-        drugModel = new DrugModel();
+            drugModel.setDrugId(drugId);
+            drugModel.setDrugName(drugName);
+            drugModel.setDrugDescription(drugDescription);
 
-        drugModel.setDrugId(drugId);
-        drugModel.setDrugName(drugName);
-        drugModel.setDrugDescription(drugDescription);
-
-        drugReference.child(drugId).setValue(drugModel)
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Toast.makeText(AddDrugActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
+            drugReference.child(drugId).setValue(drugModel)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(AddDrugActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Toast.makeText(AddDrugActivity.this, "Failed to add entry.", Toast.LENGTH_SHORT).show();
-            }
-        });
+                }
+            });
+        } else {
+            Toast.makeText(this, "Fields cannot be empty.", Toast.LENGTH_SHORT).show();
+        }
+
+        
     }
 
 

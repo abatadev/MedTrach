@@ -8,6 +8,8 @@ import android.widget.Toast;
 public class ValidateInput {
     Context context;
     EditText email, password, confirmPassword;
+    EditText pharmacyName, pharmacyDescription, pharmacyLocation;
+    EditText drugName, drugDescription, drugPharmacyName;
 
     String emailInput, passwordInput, confirmPasswordInput;
 
@@ -31,14 +33,6 @@ public class ValidateInput {
         password = myPassword;
         confirmPassword = myConfirmPassword;
     }
-
-    /**
-     * AddDrugActivity.class
-     */
-
-    /**
-     * AddPharmacyActivity.class
-     */
 
     public boolean validateEmail() {
         emailInput = email.getText().toString().trim();

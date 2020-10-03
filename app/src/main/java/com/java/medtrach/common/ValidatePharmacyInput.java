@@ -10,11 +10,10 @@ public class ValidatePharmacyInput {
 
     String pharmacyNameInput, pharmacyDescriptionInput, pharmacyLocationInput;
 
-    public ValidatePharmacyInput(Context myContext, EditText myPharmacyName, EditText myPharmacyDescription, EditText myPharmacyLocation) {
+    public ValidatePharmacyInput(Context myContext, EditText myPharmacyName, EditText myPharmacyDescription) {
         context = myContext;
         pharmacyName = myPharmacyName;
         pharmacyDescription = myPharmacyDescription;
-        pharmacyLocation = myPharmacyLocation;
     }
 
     public boolean validatePharmacyName() {
