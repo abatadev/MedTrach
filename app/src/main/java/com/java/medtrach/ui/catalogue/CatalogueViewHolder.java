@@ -16,7 +16,6 @@ public class CatalogueViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
 
         drugName = itemView.findViewById(R.id.drug_name);
-        drugDescription = itemView.findViewById(R.id.drug_description);
         pharmacyName = itemView.findViewById(R.id.drug_pharmacy_name);
         pharmacyLocation = itemView.findViewById(R.id.drug_pharmacy_location);
     }
