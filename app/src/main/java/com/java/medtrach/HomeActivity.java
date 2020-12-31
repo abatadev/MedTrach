@@ -38,8 +38,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_catalogue, R.id.nav_profile, R.id.nav_map)
                 .setDrawerLayout(drawer)
@@ -51,24 +49,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.bringToFront();
 
-        /*
-        *
-        * */
-
-
     }
-
-//    private void listenForUser() {
-//        try {
-//            userId = mAuth.getCurrentUser().getUid().toString();
-//            currentUser = mAuth.getCurrentUser().getEmail().toString();
-//        } catch (NullPointerException e) {
-//            Toast.makeText(this, "...", Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-//            startActivity(intent);
-//        }
-
-
 
     private void signOut() {
         UserModel userModel = null;

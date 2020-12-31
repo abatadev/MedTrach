@@ -8,26 +8,69 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.java.medtrach.model.PharmacyModel;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.util.Arrays;
 import java.util.List;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-//    private FusedLocationProviderClient fusedLocationProviderClient;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+
+    private Marker shipperMarker;
+    private PharmacyModel pharmacyModel; //ShipperModel
+    private Handler handler;
+    private int index, next;
+    private LatLng start, end;
+    private float v;
+    private double lat, lng;
+    private Polyline blackPolyline, greyPolyline, yellowPolyline, redPolyline;
+    private PolylineOptions polylineOptions, blackPolylineOptions;
+    private List<LatLng> polylineList;
+    private IGoogleAPI iGoogleAPI;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    AutocompleteSupportFragment autocompleteSupportFragment;
+    PlacesClient placesClient;
+
+    List<Place.Field> placeFields = Arrays.asList(Place.Field.ID,
+            Place.Field.NAME,
+            Place.Field.ADDRESS,
+            Place.Field.LAT_LNG);
 
     Location myLocation = null;
     Location destinationLocation = null;
-    protected LatLng start = null;
-    protected LatLng end = null;
 
     private final static int LOCATION_REQUEST_CODE = 23;
     boolean locationPermission = false;
@@ -43,17 +86,133 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //buildLocationRequest();
+        //buildLocationCallback();
+
+        Dexter.withActivity(this)
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                                .findFragmentById(R.id.map);
+                        mapFragment.getMapAsync(MapsActivity.this::onMapReady);
+
+                        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
+                        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+
+                    }
+                });
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        setShippingOrder();
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(16, 120);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
+    private void setShippingOrder() {
+        String data;
+
+        drawRoutes();
+    }
+
+
+    private void setupAutocompletePlaces() {
+        places_fragment = (AutocompleteSupportFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.places_autocomplete_fragment);
+        places_fragment.setPlaceFields(placeFields);
+        places_fragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                drawRoutes(place);
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+                Toast.makeText(ShippingActivity.this, "" + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void buildLocationCallback() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                //Marker
+                LatLng locationShipper = new LatLng(locationResult.getLastLocation().getLatitude(),
+                        locationResult.getLastLocation().getLongitude());
+
+                updateLocation(locationResult.getLastLocation());
+
+                if(shipperMarker == null) {
+                    //Inflate drawable
+                    int height, width;
+                    height = width = 80;
+
+                    BitmapDrawable bitmapDrawable = (BitmapDrawable) ContextCompat.getDrawable(ShippingActivity.this, R.drawable.shipper);
+                    Bitmap resized = Bitmap.createScaledBitmap(bitmapDrawable.getBitmap(), width, height, false);
+
+                    shipperMarker = mMap.addMarker(new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromBitmap(resized))
+                            .position(locationShipper).title("You"));
+
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locationShipper, 18));
+
+                }
+
+                if(isInit && previousLocation != null) {
+                    String from = new StringBuilder()
+                            .append(previousLocation.getLatitude())
+                            .append(",")
+                            .append(previousLocation.getLongitude())
+                            .toString();
+
+                    String to = new StringBuilder()
+                            .append(locationShipper.latitude)
+                            .append(",")
+                            .append(locationShipper.longitude)
+                            .toString();
+
+                    moveMarkerAnimation(shipperMarker, from, to);
+
+                    previousLocation = locationResult.getLastLocation();
+                }
+
+                if(!isInit) {
+                    isInit = true;
+                    previousLocation = locationResult.getLastLocation();
+                }
+            }
+        };
+    }
+
+    private void drawRoutes(Place place) {
+        mMap.addMarker(new MarkerOptions()
+        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+        .title(place.getName())
+        .snippet(place.getAddress())
+        .position(place.getLatLng())); // Add destination marker
+
+//        fusedLocationProviderClient.getLastLocation()
+
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
