@@ -72,6 +72,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location myLocation = null;
     Location destinationLocation = null;
 
+//
+//    //declare this
+//    private FusedLocationProviderClient mFusedLocationProviderClient;
+//
+//
+////in onCreate of your activity
+//// Construct a FusedLocationProviderClient.
+//    mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+//
+//
+//
+//
+//    private void getDeviceLocation() {
+//        /*
+//         * Get the best and most recent location of the device, which may be null in rare
+//         * cases when a location is not available.
+//         */
+//        try {
+//            if (mLocationPermissionGranted)//variable that stores the status if location permission is granted or not
+//            {
+//                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
+//                locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Location> task) {
+//                        if (task.isSuccessful()) {
+//                            // Set the map's camera position to the current location of the device.
+//                            mLastKnownLocation = task.getResult();
+//                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+//                                    new LatLng(mLastKnownLocation.getLatitude(),
+//                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+//                            //add a marker if required
+//                        } else {
+//                            Log.d(TAG, "Current location is null. Using defaults.");
+//                            Log.e(TAG, "Exception: %s", task.getException());
+//                            mMap.moveCamera(CameraUpdateFactory
+//                                    .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+//                        }
+//                    }
+//                });
+//            }
+//        } catch (SecurityException e) {
+//            Log.e("Exception: %s", e.getMessage());
+//        }
+//
+//    }
+//
     private final static int LOCATION_REQUEST_CODE = 23;
     boolean locationPermission = false;
 
