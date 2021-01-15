@@ -36,6 +36,7 @@ import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
 import com.java.medtrach.model.DrugModel;
+import com.java.medtrach.model.PharmacyModel;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -55,9 +56,9 @@ public class CatalogueFragment extends Fragment {
     private View view;
     private RecyclerView recyclerView;
 
-    FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder> adapter;
-    FirebaseRecyclerOptions<DrugModel> options;
-    private DatabaseReference drugReference;
+    FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder> adapter;
+    FirebaseRecyclerOptions<PharmacyModel> options;
+    private DatabaseReference drugReference, pharmacyReference;
 
     private DrugModel drugModel;
 
@@ -166,6 +167,7 @@ public class CatalogueFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
 
         drugReference = FirebaseDatabase.getInstance().getReference().child(Common.DRUG_REF);
+        pharmacyReference = FirebaseDatabase.getInstance().getReference().child(Common.PHARMACY_REF);
 
         addPharmacyButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,41 +218,42 @@ public class CatalogueFragment extends Fragment {
      */
 
     private void loadData(String data) {
-        Query query = drugReference.orderByChild("drugName").startAt(data).endAt(data + "\uf8ff");
+        Query query = pharmacyReference.orderByChild("pharmacyName").startAt(data).endAt(data + "\uf8ff");
 
-        options = new FirebaseRecyclerOptions.Builder<DrugModel>()
-                .setQuery(query, DrugModel.class)
+        options = new FirebaseRecyclerOptions.Builder<PharmacyModel>()
+                .setQuery(query, PharmacyModel.class)
                 .build();
 
-        adapter = new FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder>(options) {
+            @NonNull
             @Override
-            protected void onBindViewHolder(@NonNull DrugsViewHolder holder, int position, @NonNull DrugModel model) {
-                final String myDrugName = model.getDrugName();
-                final String myDrugDescription = model.getDrugDescription();
+            public PharmacyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_pharmacy, parent, false);
+                return new PharmacyViewHolder(view);
+            }
 
-                holder.drugName.setText(myDrugName);
-                holder.drugDescription.setText(myDrugDescription);
+            @Override
+            protected void onBindViewHolder(@NonNull PharmacyViewHolder holder, int position, @NonNull PharmacyModel model) {
+                final String myPharmacyName = model.getPharmacyName();
+                final String myPharmacyLocation = model.getPharmacyLocation();
+
+                holder.pharmacyName.setText(myPharmacyName);
+                holder.pharmacyLocation.setText(myPharmacyLocation);
 
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        getContext().startActivity(new Intent(getContext(), MapsActivity.class));
+                        Toast.makeText(getContext(), "Testing!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
-
-            @NonNull
-            @Override
-            public DrugsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_drugs, parent, false);
-                return new DrugsViewHolder(view);
-            }
-        };
+            };
 
         adapter.startListening();
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-    }
+        }
+
 
     private void checkPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

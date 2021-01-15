@@ -27,7 +27,7 @@ public class AddDrugActivity extends AppCompatActivity {
     ValidateDrugInput validateDrugInput;
     DrugModel drugModel;
 
-    EditText drugNameEditText, drugDescriptionEditText, drugPharmacyNameEditText, drugPharmacyLocationEditText;
+    EditText drugNameEditText, drugDescriptionEditText;
     Button submitButton;
 
     @Override
@@ -71,12 +71,12 @@ public class AddDrugActivity extends AppCompatActivity {
             drugModel.setDrugDescription(drugDescription);
 
             drugReference.child(drugId).setValue(drugModel)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(AddDrugActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(AddDrugActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Toast.makeText(AddDrugActivity.this, "Failed to add entry.", Toast.LENGTH_SHORT).show();
