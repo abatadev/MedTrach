@@ -7,8 +7,8 @@
 
     <fragment
         android:id="@+id/nav_catalogue"
-        android:name="com.java.medtrach.ui.catalogue.CatalogueFragment"
-        android:label="@string/menu_catalogue"
+        android:name="com.java.medtrach.ui.pharmacy.PharmacyFragment"
+        android:label="@string/menu_pharmacy"
         tools:layout="@layout/fragment_catalogue" />
 
     <fragment

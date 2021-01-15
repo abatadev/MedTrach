@@ -35,8 +35,8 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"/>
 
-        <activity android:name=".ui.catalogue.AddPharmacyActivity" />
-        <activity android:name=".ui.catalogue.AddDrugActivity" />
+        <activity android:name=".ui.pharmacy.AddPharmacyActivity" />
+        <activity android:name=".ui.pharmacy.AddDrugActivity" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"

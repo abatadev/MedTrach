@@ -1,17 +1,13 @@
 package com.java.medtrach.model;
 
+import java.util.List;
+
 public class PharmacyModel {
     private String pharmacyId, pharmacyName, pharmacyLocation, pharmacyLocationX, pharmacyLocationY;
 
-    public PharmacyModel() {
-    }
+    List<DrugModel> drugs;
 
-    public PharmacyModel(String pharmacyId, String pharmacyName, String pharmacyLocation, String pharmacyLocationX, String pharmacyLocationY) {
-        this.pharmacyId = pharmacyId;
-        this.pharmacyName = pharmacyName;
-        this.pharmacyLocation = pharmacyLocation;
-        this.pharmacyLocationX = pharmacyLocationX;
-        this.pharmacyLocationY = pharmacyLocationY;
+    public PharmacyModel() {
     }
 
     public String getPharmacyId() {
@@ -52,5 +48,13 @@ public class PharmacyModel {
 
     public void setPharmacyLocationY(String pharmacyLocationY) {
         this.pharmacyLocationY = pharmacyLocationY;
+    }
+
+    public List<DrugModel> getDrugs() {
+        return drugs;
+    }
+
+    public void setDrugs(List<DrugModel> drugs) {
+        this.drugs = drugs;
     }
 }

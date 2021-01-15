@@ -1,4 +1,4 @@
-package com.java.medtrach.ui.catalogue;
+package com.java.medtrach.ui.pharmacy;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -32,7 +32,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
 import com.java.medtrach.model.DrugModel;
@@ -43,9 +42,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class CatalogueFragment extends Fragment {
+public class PharmacyFragment extends Fragment {
 
-    private Button addPharmacyButton, addDrugButton;
     private EditText searchBarEditText;
     private ImageView microphoneButton;
 
@@ -66,12 +64,8 @@ public class CatalogueFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-
-
         View root = inflater.inflate(R.layout.fragment_catalogue, container, false);
 
-        addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
-        addDrugButton = root.findViewById(R.id.add_drugs_button);
         searchBarEditText = root.findViewById(R.id.catalogue_search_bar);
         microphoneButton = root.findViewById(R.id.catalogue_microphone_image);
 
@@ -80,7 +74,6 @@ public class CatalogueFragment extends Fragment {
         }
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
@@ -121,16 +114,6 @@ public class CatalogueFragment extends Fragment {
                 microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
-
-//                String str = "font roboto regular";
-//                String[] strArray = str.split(" ");
-//                StringBuilder builder = new StringBuilder();
-//                for (String s : strArray) {
-//                    String cap = s.substring(0, 1).toUpperCase() + s.substring(1);
-//                    builder.append(cap + " ");
-//                }
-//                TextView textView = (TextView) findViewById(R.id.textView);
-//                textView.setText(builder.toString());
             }
 
             @Override
@@ -143,7 +126,6 @@ public class CatalogueFragment extends Fragment {
 
             }
         });
-
         microphoneButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -169,15 +151,14 @@ public class CatalogueFragment extends Fragment {
         drugReference = FirebaseDatabase.getInstance().getReference().child(Common.DRUG_REF);
         pharmacyReference = FirebaseDatabase.getInstance().getReference().child(Common.PHARMACY_REF);
 
-        addPharmacyButton.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.add_pharmacy_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AddPharmacyActivity.class);
                 startActivity(intent);
             }
         });
-
-        addDrugButton.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.add_drugs_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AddDrugActivity.class);
