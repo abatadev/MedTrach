@@ -25,10 +25,10 @@
             android:layout_margin="8dp">
 
             <TextView
-                android:id="@+id/drug_name"
+                android:id="@+id/drug_name_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Drug Name"
+                android:text="@string/drug_name"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-condensed-light"
                 android:textSize="15sp"
@@ -36,21 +36,12 @@
                 android:layout_marginBottom="4dp"/>
 
             <TextView
-                android:id="@+id/drug_pharmacy_name"
+                android:id="@+id/drug_description_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pharmacy Name"
+                android:text="@string/drug_description"
                 android:fontFamily="sans-serif"
-                android:drawableStart="@drawable/ic_baseline_store_24"
-                />
-
-            <TextView
-                android:id="@+id/drug_pharmacy_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Pharmacy Location"
-                android:fontFamily="sans-serif"
-                android:drawableStart="@drawable/ic_baseline_location_on_24"
+                android:drawableStart="@drawable/ic_baseline_description_24"
                 />
 
         </LinearLayout>

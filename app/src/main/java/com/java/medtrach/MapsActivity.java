@@ -52,7 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private List<Polyline> polylines = null;
 
-    boolean locationPermission=false;
+    boolean locationPermission = false;
     private final static int LOCATION_REQUEST_CODE = 23;
 
     @Override
@@ -68,15 +68,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void requestPermissions() {
-        if(ContextCompat.checkSelfPermission(this,
+        if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     LOCATION_REQUEST_CODE);
-        }
-        else{
-            locationPermission=true;
+        } else {
+            locationPermission = true;
         }
     }
 
@@ -84,7 +83,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case LOCATION_REQUEST_CODE: {
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermission = true;
                     getMyLocation();
                 } else {
@@ -96,6 +95,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getMyLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
 
@@ -195,7 +200,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Add Marker on route starting position
         MarkerOptions startMarker = new MarkerOptions();
         startMarker.position(polylineStartLatLng);
-        startMarker.title("My Location");
+        startMarker.title("You");
         mMap.addMarker(startMarker);
 
         //Add Marker on route ending position
@@ -203,6 +208,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         endMarker.position(polylineEndLatLng);
         endMarker.title("Destination");
         mMap.addMarker(endMarker);
+
+        // Place marker for Pharmacy
 
     }
 

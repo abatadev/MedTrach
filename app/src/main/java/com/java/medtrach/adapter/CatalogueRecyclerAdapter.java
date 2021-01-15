@@ -13,14 +13,13 @@ public class CatalogueRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView drugName, pharmacyName, pharmacyLocation;
+        TextView drugName, drugDescription;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            drugName = itemView.findViewById(R.id.drug_name);
-            pharmacyName = itemView.findViewById(R.id.drug_pharmacy_name);
-            pharmacyLocation = itemView.findViewById(R.id.drug_pharmacy_location);
+            drugName = itemView.findViewById(R.id.drug_name_text_view);
+            drugDescription = itemView.findViewById(R.id.drug_description_text_view);
         }
     }
 

@@ -21,7 +21,6 @@ import com.java.medtrach.model.DrugModel;
 
 public class AddDrugActivity extends AppCompatActivity {
 
-    private String drugName, drugDescription, drugPharmacyName, drugPharmacyLocation;
     private DatabaseReference drugReference;
     private FirebaseDatabase mDatabase;
     
@@ -51,8 +50,6 @@ public class AddDrugActivity extends AppCompatActivity {
     private void initializeContent() {
         drugNameEditText = findViewById(R.id.add_drug_drug_name_edit_text);
         drugDescriptionEditText = findViewById(R.id.add_drug_description_edit_text);
-        drugPharmacyNameEditText = findViewById(R.id.add_drug_pharmacy_name_edit_text);
-        drugPharmacyLocationEditText = findViewById(R.id.add_drug_pharmacy_location_edit_text);
         submitButton = findViewById(R.id.add_drug_submit_button);
 
         drugReference = FirebaseDatabase.getInstance().getReference().child(Common.DRUG_REF);
@@ -61,10 +58,8 @@ public class AddDrugActivity extends AppCompatActivity {
     private void submitToFirebase() {
         final String drugId = drugReference.push().getKey();
 
-        drugName = drugNameEditText.getText().toString().trim();
-        drugDescription = drugDescriptionEditText.getText().toString().trim();
-        drugPharmacyName = drugPharmacyNameEditText.getText().toString().trim();
-        drugPharmacyLocation = drugPharmacyLocationEditText.getText().toString().trim();
+        String drugName = drugNameEditText.getText().toString().trim();
+        String drugDescription = drugDescriptionEditText.getText().toString().trim();
 
         boolean drugNameVerified = validateDrugInput.validateDrugName();
         
@@ -73,9 +68,7 @@ public class AddDrugActivity extends AppCompatActivity {
 
             drugModel.setDrugId(drugId);
             drugModel.setDrugName(drugName);
-            drugModel.setPharmacyName(drugPharmacyName);
-            drugModel.setPharmacyLocation(drugPharmacyLocation);
-//            drugModel.setDrugDescription(drugDescription);
+            drugModel.setDrugDescription(drugDescription);
 
             drugReference.child(drugId).setValue(drugModel)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {

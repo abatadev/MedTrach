@@ -21,13 +21,12 @@ import com.java.medtrach.model.PharmacyModel;
 
 public class AddPharmacyActivity extends AppCompatActivity {
 
-    private TextView pharmacyUploadImageTextView;
-    private EditText pharmacyNameEditText, pharmacyDescriptionEditText, pharmacyLocationEditText;
+    private EditText pharmacyNameEditText, pharmacyLocationEditText;
     private Button submitButton;
 
     private PharmacyModel pharmacyModel;
 
-    private String pharmacyName, pharmacyDescription, pharmacyLocation;
+    private String pharmacyName, pharmacyLocation;
     
     private ValidatePharmacyInput validatePharmacyInput;
 
@@ -41,7 +40,7 @@ public class AddPharmacyActivity extends AppCompatActivity {
         initializeContent();
         
         validatePharmacyInput = new ValidatePharmacyInput(AddPharmacyActivity.this,
-                pharmacyNameEditText, pharmacyDescriptionEditText);
+                pharmacyNameEditText);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,7 +52,6 @@ public class AddPharmacyActivity extends AppCompatActivity {
 
     private void initializeContent() {
         pharmacyNameEditText = findViewById(R.id.pharmacy_name_edit_text);
-        pharmacyDescriptionEditText = findViewById(R.id.pharmacy_description_edit_text);
         pharmacyLocationEditText = findViewById(R.id.pharmacy_location_edit_text);
         submitButton = findViewById(R.id.pharmacy_submit_button);
 
@@ -64,18 +62,15 @@ public class AddPharmacyActivity extends AppCompatActivity {
         final String pharmacyId = pharmacyReference.push().getKey();
 
         pharmacyName = pharmacyNameEditText.getText().toString();
-        pharmacyDescription = pharmacyDescriptionEditText.getText().toString();
         pharmacyLocation = pharmacyLocationEditText.getText().toString();
         
         boolean verifiedPharmacyName = validatePharmacyInput.validatePharmacyName();
-        boolean verifiedPharmacyDescription = validatePharmacyInput.validatePharmacyDescription();
-        
-        if(verifiedPharmacyName && verifiedPharmacyDescription) {
+
+        if(verifiedPharmacyName) {
             pharmacyModel = new PharmacyModel();
 
             pharmacyModel.setPharmacyId(pharmacyId);
             pharmacyModel.setPharmacyName(pharmacyName);
-            pharmacyModel.setPharmacyDescription(pharmacyDescription);
             pharmacyModel.setPharmacyLocation(pharmacyLocation);
 
             pharmacyReference.child(pharmacyId).setValue(pharmacyModel).addOnSuccessListener(new OnSuccessListener<Void>() {

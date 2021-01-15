@@ -6,14 +6,13 @@ import android.widget.Toast;
 
 public class ValidatePharmacyInput {
     Context context;
-    EditText pharmacyName, pharmacyDescription, pharmacyLocation;
+    EditText pharmacyName, pharmacyLocation;
 
     String pharmacyNameInput, pharmacyDescriptionInput, pharmacyLocationInput;
 
-    public ValidatePharmacyInput(Context myContext, EditText myPharmacyName, EditText myPharmacyDescription) {
+    public ValidatePharmacyInput(Context myContext, EditText myPharmacyName) {
         context = myContext;
         pharmacyName = myPharmacyName;
-        pharmacyDescription = myPharmacyDescription;
     }
 
     public boolean validatePharmacyName() {
@@ -27,14 +26,4 @@ public class ValidatePharmacyInput {
         }
     }
 
-    public boolean validatePharmacyDescription() {
-        pharmacyDescriptionInput = pharmacyDescription.getText().toString();
-
-        if(pharmacyDescriptionInput.isEmpty()) {
-            Toast.makeText(context, "Description cannot be empty.", Toast.LENGTH_SHORT).show();
-            return false;
-        } else {
-            return true;
-        }
-    }
 }

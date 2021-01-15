@@ -18,20 +18,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -39,6 +36,8 @@ import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
 import com.java.medtrach.model.DrugModel;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -56,7 +55,7 @@ public class CatalogueFragment extends Fragment {
     private View view;
     private RecyclerView recyclerView;
 
-    FirebaseRecyclerAdapter<DrugModel, CatalogueViewHolder> adapter;
+    FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder> adapter;
     FirebaseRecyclerOptions<DrugModel> options;
     private DatabaseReference drugReference;
 
@@ -120,7 +119,7 @@ public class CatalogueFragment extends Fragment {
             public void onResults(Bundle bundle) {
                 microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                searchBarEditText.setText(data.get(0).toUpperCase());
+                searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
 
 //                String str = "font roboto regular";
 //                String[] strArray = str.split(" ");
@@ -211,6 +210,11 @@ public class CatalogueFragment extends Fragment {
     }
 
 
+    /**
+     * Loads pharmacy first.
+     * @param data
+     */
+
     private void loadData(String data) {
         Query query = drugReference.orderByChild("drugName").startAt(data).endAt(data + "\uf8ff");
 
@@ -218,40 +222,34 @@ public class CatalogueFragment extends Fragment {
                 .setQuery(query, DrugModel.class)
                 .build();
 
-        adapter = new FirebaseRecyclerAdapter<DrugModel, CatalogueViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull CatalogueViewHolder holder, int position, @NonNull DrugModel model) {
+            protected void onBindViewHolder(@NonNull DrugsViewHolder holder, int position, @NonNull DrugModel model) {
                 final String myDrugName = model.getDrugName();
-                final String myPharmacyName = model.getPharmacyName();
-                final String myPharmacyLocation = model.getPharmacyLocation();
+                final String myDrugDescription = model.getDrugDescription();
 
                 holder.drugName.setText(myDrugName);
-                holder.pharmacyName.setText(myPharmacyName);
-                holder.pharmacyLocation.setText(myPharmacyLocation);
+                holder.drugDescription.setText(myDrugDescription);
 
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-//                        Intent intent = new Intent(getContext(), MapsActivity.class);
-//                        startActivity(intent);
-
-                        // Open MapsActivity.class
                         getContext().startActivity(new Intent(getContext(), MapsActivity.class));
                     }
                 });
-
             }
 
             @NonNull
             @Override
-            public CatalogueViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue, parent, false);
-                return new CatalogueViewHolder(view);
+            public DrugsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_drugs, parent, false);
+                return new DrugsViewHolder(view);
             }
         };
 
         adapter.startListening();
         recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     private void checkPermission() {

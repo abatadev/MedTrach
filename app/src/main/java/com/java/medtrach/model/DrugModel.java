@@ -1,9 +1,15 @@
 package com.java.medtrach.model;
 
 public class DrugModel {
-    String drugId, drugName, pharmacyName, pharmacyLocation;
+    String drugId, drugName, drugDescription;
 
     public DrugModel() {
+    }
+
+    public DrugModel(String drugId, String drugName, String drugDescription) {
+        this.drugId = drugId;
+        this.drugName = drugName;
+        this.drugDescription = drugDescription;
     }
 
     public String getDrugId() {
@@ -22,19 +28,11 @@ public class DrugModel {
         this.drugName = drugName;
     }
 
-    public String getPharmacyName() {
-        return pharmacyName;
+    public String getDrugDescription() {
+        return drugDescription;
     }
 
-    public void setPharmacyName(String pharmacyName) {
-        this.pharmacyName = pharmacyName;
-    }
-
-    public String getPharmacyLocation() {
-        return pharmacyLocation;
-    }
-
-    public void setPharmacyLocation(String pharmacyLocation) {
-        this.pharmacyLocation = pharmacyLocation;
+    public void setDrugDescription(String drugDescription) {
+        this.drugDescription = drugDescription;
     }
 }
