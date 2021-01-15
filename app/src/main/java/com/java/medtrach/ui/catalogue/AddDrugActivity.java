@@ -21,7 +21,7 @@ import com.java.medtrach.model.DrugModel;
 
 public class AddDrugActivity extends AppCompatActivity {
 
-    private DatabaseReference drugReference;
+    private DatabaseReference drugReference, pharmacyReference, catalogueReference;
     private FirebaseDatabase mDatabase;
     
     ValidateDrugInput validateDrugInput;
@@ -53,6 +53,7 @@ public class AddDrugActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.add_drug_submit_button);
 
         drugReference = FirebaseDatabase.getInstance().getReference().child(Common.DRUG_REF);
+        pharmacyReference = FirebaseDatabase.getInstance().getReference().child(Common.PHARMACY_REF);
     }
 
     private void submitToFirebase() {

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.catalogue.PharmacyActivity">
+
+    <Button
+        android:id="@+id/add_drugs_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBlack"
+        android:textColor="@color/colorWhite"
+        android:text="Add Drugs"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="8dp">
+
+        <TextView
+            android:id="@+id/pharmacy_detailed_name_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pharmacy_name"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-condensed-light"
+            android:textSize="15sp"
+            android:drawableStart="@drawable/ic_baseline_keyboard_arrow_right_24"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/pharmacy_detailed_location_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pharmacy_location"
+            android:fontFamily="sans-serif"
+            android:drawableStart="@drawable/ic_baseline_location_on_24"
+            />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -32,6 +32,7 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.java.medtrach.HomeActivity;
 import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
@@ -71,7 +72,6 @@ public class CatalogueFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_catalogue, container, false);
 
         addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
-        addDrugButton = root.findViewById(R.id.add_drugs_button);
         searchBarEditText = root.findViewById(R.id.catalogue_search_bar);
         microphoneButton = root.findViewById(R.id.catalogue_microphone_image);
 
@@ -121,16 +121,6 @@ public class CatalogueFragment extends Fragment {
                 microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
-
-//                String str = "font roboto regular";
-//                String[] strArray = str.split(" ");
-//                StringBuilder builder = new StringBuilder();
-//                for (String s : strArray) {
-//                    String cap = s.substring(0, 1).toUpperCase() + s.substring(1);
-//                    builder.append(cap + " ");
-//                }
-//                TextView textView = (TextView) findViewById(R.id.textView);
-//                textView.setText(builder.toString());
             }
 
             @Override
@@ -173,14 +163,6 @@ public class CatalogueFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AddPharmacyActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        addDrugButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), AddDrugActivity.class);
                 startActivity(intent);
             }
         });
@@ -234,6 +216,7 @@ public class CatalogueFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull PharmacyViewHolder holder, int position, @NonNull PharmacyModel model) {
+                final String myPharmacyId = model.getPharmacyId();
                 final String myPharmacyName = model.getPharmacyName();
                 final String myPharmacyLocation = model.getPharmacyLocation();
 
@@ -243,7 +226,10 @@ public class CatalogueFragment extends Fragment {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Toast.makeText(getContext(), "Testing!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getActivity(), PharmacyActivity.class);
+                        intent.putExtra("pharmacyId", myPharmacyId);
+                        Toast.makeText(getContext(), myPharmacyId, Toast.LENGTH_SHORT).show();
+                        startActivity(intent);
                     }
                 });
             }
