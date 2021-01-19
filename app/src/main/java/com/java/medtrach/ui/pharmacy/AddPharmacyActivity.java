@@ -40,65 +40,33 @@ public class AddPharmacyActivity extends AppCompatActivity {
         initializeContent();
         
         validatePharmacyInput = new ValidatePharmacyInput(AddPharmacyActivity.this,
-                pharmacyNameEditText);
-
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                submitToFirebase();
-            }
-        });
+                pharmacyNameEditText, pharmacyLocationEditText);
 
         openGoogleMaps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AddPharmacyActivity.this, MapsPharmacyActivity.class);
-                startActivity(intent);
+                boolean verifiedPharmacyName = validatePharmacyInput.validatePharmacyName();
+                boolean verifiedPharmacyLocation = validatePharmacyInput.validatePharmacyLocation();
+
+                pharmacyName = pharmacyNameEditText.getText().toString();
+                pharmacyLocation = pharmacyLocationEditText.getText().toString();
+
+                if(verifiedPharmacyName && verifiedPharmacyLocation) {
+                    Intent intent = new Intent(AddPharmacyActivity.this, MapsPharmacyActivity.class);
+                    intent.putExtra("pharmacyName", pharmacyName);
+                    intent.putExtra("pharmacyLocation", pharmacyLocation);
+                    startActivity(intent);
+                }
             }
         });
     }
 
     private void initializeContent() {
-        pharmacyNameEditText = findViewById(R.id.pharmacy_name_edit_text);
-        pharmacyLocationEditText = findViewById(R.id.pharmacy_location_edit_text);
-        submitButton = findViewById(R.id.pharmacy_submit_button);
+        pharmacyNameEditText = findViewById(R.id.add_pharmacy_name_edit_text);
+        pharmacyLocationEditText = findViewById(R.id.add_pharmacy_location_edit_text);
         openGoogleMaps = findViewById(R.id.pharmacy_open_google_maps_button);
 
         pharmacyReference = FirebaseDatabase.getInstance().getReference().child(Common.PHARMACY_REF);
     }
-
-    private void submitToFirebase() {
-        final String pharmacyId = pharmacyReference.push().getKey();
-
-        pharmacyName = pharmacyNameEditText.getText().toString();
-        pharmacyLocation = pharmacyLocationEditText.getText().toString();
-        
-        boolean verifiedPharmacyName = validatePharmacyInput.validatePharmacyName();
-
-        if(verifiedPharmacyName) {
-            pharmacyModel = new PharmacyModel();
-
-            pharmacyModel.setPharmacyId(pharmacyId);
-            pharmacyModel.setPharmacyName(pharmacyName);
-            pharmacyModel.setPharmacyLocation(pharmacyLocation);
-
-            pharmacyReference.child(pharmacyId).setValue(pharmacyModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Toast.makeText(AddPharmacyActivity.this, "Added entry.", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(AddPharmacyActivity.this, "Failed to add entry.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            Toast.makeText(this, "Test", Toast.LENGTH_SHORT).show();
-        }
-
-        
-    }
-
 
 }

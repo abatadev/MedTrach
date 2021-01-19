@@ -3,11 +3,21 @@ package com.java.medtrach.model;
 import java.util.List;
 
 public class PharmacyModel {
-    private String pharmacyId, pharmacyName, pharmacyLocation, pharmacyLocationX, pharmacyLocationY;
+    private String pharmacyId, pharmacyName, pharmacyLocation;
+    private Double pharmacyLocationX, pharmacyLocationY;
 
     List<DrugModel> drugs;
 
     public PharmacyModel() {
+    }
+
+    public PharmacyModel(String pharmacyId, String pharmacyName, String pharmacyLocation, Double pharmacyLocationX, Double pharmacyLocationY, List<DrugModel> drugs) {
+        this.pharmacyId = pharmacyId;
+        this.pharmacyName = pharmacyName;
+        this.pharmacyLocation = pharmacyLocation;
+        this.pharmacyLocationX = pharmacyLocationX;
+        this.pharmacyLocationY = pharmacyLocationY;
+        this.drugs = drugs;
     }
 
     public String getPharmacyId() {
@@ -34,19 +44,19 @@ public class PharmacyModel {
         this.pharmacyLocation = pharmacyLocation;
     }
 
-    public String getPharmacyLocationX() {
+    public Double getPharmacyLocationX() {
         return pharmacyLocationX;
     }
 
-    public void setPharmacyLocationX(String pharmacyLocationX) {
+    public void setPharmacyLocationX(Double pharmacyLocationX) {
         this.pharmacyLocationX = pharmacyLocationX;
     }
 
-    public String getPharmacyLocationY() {
+    public Double getPharmacyLocationY() {
         return pharmacyLocationY;
     }
 
-    public void setPharmacyLocationY(String pharmacyLocationY) {
+    public void setPharmacyLocationY(Double pharmacyLocationY) {
         this.pharmacyLocationY = pharmacyLocationY;
     }
 

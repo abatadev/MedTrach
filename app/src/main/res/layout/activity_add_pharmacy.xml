@@ -19,7 +19,7 @@
         />
 
     <EditText
-        android:id="@+id/pharmacy_name_edit_text"
+        android:id="@+id/add_pharmacy_name_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
@@ -28,7 +28,7 @@
         android:drawableStart="@drawable/ic_baseline_store_24"/>
 
     <EditText
-        android:id="@+id/pharmacy_location_edit_text"
+        android:id="@+id/add_pharmacy_location_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
@@ -44,17 +44,8 @@
         android:background="@color/colorBlack"
         android:layout_marginTop="16dp"
         android:text="Google Maps"
+        android:fontFamily="sans-serif"
         android:drawablePadding="16dp"
-        />
-
-    <Button
-        android:id="@+id/pharmacy_submit_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorWhite"
-        android:background="@color/colorBlack"
-        android:layout_marginTop="16dp"
-        android:text="Submit"
         />
 
 </LinearLayout>

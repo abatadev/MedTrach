@@ -28,9 +28,6 @@
     <string name="drug_name">Drug Name</string>
     <string name="pharmacy_location">Pharmacy Location</string>
     <string name="search">Search</string>
-
-=======
     <string name="add_drugs">Add Drugs</string>
     <string name="pharmacy_name">Pharmacy Name</string>
->>>>>>> flatten-db
 </resources>
