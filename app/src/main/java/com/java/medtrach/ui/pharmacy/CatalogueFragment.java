@@ -46,7 +46,6 @@ import java.util.Locale;
 public class CatalogueFragment extends Fragment {
     final String TAG = "CatalogueFragment";
 
-    private Button addPharmacyButton, addDrugButton;
     private EditText searchBarEditText;
     private ImageView microphoneButton;
 
@@ -71,7 +70,7 @@ public class CatalogueFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_catalogue, container, false);
 
-        addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
+        Button addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
         searchBarEditText = root.findViewById(R.id.catalogue_search_bar);
         microphoneButton = root.findViewById(R.id.catalogue_microphone_image);
 
