@@ -14,8 +14,34 @@
         android:text="Add Drugs"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="22dp"
+        android:layout_marginBottom="8dp"
         android:textColor="@color/colorBlack"
+        />
+
+    <TextView
+        android:id="@+id/add_drugs_pharmacy_name_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pharmacy_name"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        android:layout_marginBottom="4dp"
+        android:textColor="@color/colorGrey"
+        android:layout_marginStart="8dp"
+        />
+
+    <TextView
+        android:id="@+id/add_drugs_pharmacy_location_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pharmacy_location"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="8dp"
+        android:textColor="@color/colorGrey"
         />
 
 
@@ -45,6 +71,8 @@
         android:layout_height="wrap_content"
         android:textColor="@color/colorWhite"
         android:background="@color/colorBlack"
+        android:textStyle="bold"
+        android:textSize="16sp"
         android:layout_marginTop="16dp"
         android:text="Submit"
         />
