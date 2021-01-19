@@ -3,6 +3,7 @@ package com.java.medtrach.ui.pharmacy;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,7 @@ import com.java.medtrach.model.PharmacyModel;
 public class AddPharmacyActivity extends AppCompatActivity {
 
     private EditText pharmacyNameEditText, pharmacyLocationEditText;
-    private Button submitButton;
+    private Button submitButton, openGoogleMaps;
 
     private PharmacyModel pharmacyModel;
 
@@ -47,12 +48,21 @@ public class AddPharmacyActivity extends AppCompatActivity {
                 submitToFirebase();
             }
         });
+
+        openGoogleMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AddPharmacyActivity.this, MapsPharmacyActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initializeContent() {
         pharmacyNameEditText = findViewById(R.id.pharmacy_name_edit_text);
         pharmacyLocationEditText = findViewById(R.id.pharmacy_location_edit_text);
         submitButton = findViewById(R.id.pharmacy_submit_button);
+        openGoogleMaps = findViewById(R.id.pharmacy_open_google_maps_button);
 
         pharmacyReference = FirebaseDatabase.getInstance().getReference().child(Common.PHARMACY_REF);
     }
