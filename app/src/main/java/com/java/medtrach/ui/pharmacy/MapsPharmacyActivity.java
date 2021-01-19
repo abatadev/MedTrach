@@ -13,6 +13,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.java.medtrach.R;
 
+
+/**
+ * TODO
+ * 1. Set permissions
+ * 2. Get current location
+ * 3. Set fragment
+ * 4. Add coordinates
+ * 5. Pass coordinates to previous intent
+ */
+
 public class MapsPharmacyActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     @Override

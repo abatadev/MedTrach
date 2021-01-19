@@ -43,13 +43,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Locale;
 
-<<<<<<< HEAD:app/src/main/java/com/java/medtrach/ui/pharmacy/PharmacyFragment.java
-public class PharmacyFragment extends Fragment {
-=======
+
 public class CatalogueFragment extends Fragment {
     final String TAG = "CatalogueFragment";
->>>>>>> flatten-db:app/src/main/java/com/java/medtrach/ui/pharmacy/CatalogueFragment.java
-
     private EditText searchBarEditText;
     private ImageView microphoneButton;
 
@@ -72,10 +68,8 @@ public class CatalogueFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_catalogue, container, false);
 
-<<<<<<< HEAD:app/src/main/java/com/java/medtrach/ui/pharmacy/PharmacyFragment.java
-=======
         Button addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
->>>>>>> flatten-db:app/src/main/java/com/java/medtrach/ui/pharmacy/CatalogueFragment.java
+
         searchBarEditText = root.findViewById(R.id.catalogue_search_bar);
         microphoneButton = root.findViewById(R.id.catalogue_microphone_image);
 
@@ -168,7 +162,6 @@ public class CatalogueFragment extends Fragment {
                 startActivity(intent);
             }
         });
-<<<<<<< HEAD:app/src/main/java/com/java/medtrach/ui/pharmacy/PharmacyFragment.java
         root.findViewById(R.id.add_drugs_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,8 +169,6 @@ public class CatalogueFragment extends Fragment {
                 startActivity(intent);
             }
         });
-=======
->>>>>>> flatten-db:app/src/main/java/com/java/medtrach/ui/pharmacy/CatalogueFragment.java
 
         loadData("");
 

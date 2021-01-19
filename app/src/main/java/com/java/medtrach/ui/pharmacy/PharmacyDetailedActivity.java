@@ -18,7 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
-import com.java.medtrach.ui.catalogue.AddDrugActivity;
+//import com.java.medtrach.ui.catalogue.AddDrugActivity;
 
 //TODO Create RecyclerView list adapter.
 public class PharmacyDetailedActivity extends AppCompatActivity {

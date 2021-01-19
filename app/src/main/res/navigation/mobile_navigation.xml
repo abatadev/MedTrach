@@ -7,13 +7,9 @@
 
     <fragment
         android:id="@+id/nav_catalogue"
-<<<<<<< HEAD
         android:name="com.java.medtrach.ui.pharmacy.PharmacyFragment"
         android:label="@string/menu_pharmacy"
-=======
-        android:name="com.java.medtrach.ui.pharmacy.CatalogueFragment"
-        android:label="@string/menu_catalogue"
->>>>>>> flatten-db
+
         tools:layout="@layout/fragment_catalogue" />
 
     <fragment
