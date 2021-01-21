@@ -22,7 +22,7 @@ import com.java.medtrach.common.Common;
 
 //TODO Create RecyclerView list adapter.
 public class PharmacyDetailedActivity extends AppCompatActivity {
-    final String TAG = "PharmacyDetailedActivity";
+    final String TAG = PharmacyDetailedActivity.class.getName();
 
     TextView pharmacyDetailedName, pharmacyDetailedLocation;
     Button addDrugsButton;
@@ -70,7 +70,7 @@ public class PharmacyDetailedActivity extends AppCompatActivity {
                 addDrugsButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(getApplicationContext(), AddDrugActivity.class);
+                        Intent intent = new Intent(PharmacyDetailedActivity.this, AddDrugActivity.class);
                         intent.putExtra("pharmacyId", pharmacyId);
                         intent.putExtra("pharmacyName", pharmacyName);
                         intent.putExtra("pharmacyLocation", pharmacyLocation);

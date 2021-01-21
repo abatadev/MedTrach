@@ -21,7 +21,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,6 +36,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -47,16 +50,16 @@ import static java.security.AccessController.getContext;
 
 /**
  * TODO
- * 1. Set permissions
- * 2. Get current location
- * 3. Set fragment
- * 4. Add coordinates
- * 5. Pass coordinates to previous intent
- * 6. Pass intents
- * 7. Fix bugs
+ * 1. Set permissions OK
+ * 2. Get current location OK - FIX
+ * 3. Set fragment OK - Workaround
+ * 4. Add coordinates - OK
+ * 5. Pass coordinates to previous intent - TO DO
+ * 6. Pass intents - TO DO
+ * 7. Fix bugs - TO DO
  */
 
-public class MapsPharmacyActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapsPharmacyActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     final String TAG = MapsPharmacyActivity.class.getName();
 
@@ -72,6 +75,7 @@ public class MapsPharmacyActivity extends AppCompatActivity implements OnMapRead
     private DatabaseReference drugReference, pharmacyReference;
 
     private GoogleMap googleMap;
+    private FusedLocationProviderClient fusedLocationClient;
 
     String pharmacyName, pharmacyLocation;
     Double pharmacyLongitude, pharmacyLatitude;
@@ -80,6 +84,7 @@ public class MapsPharmacyActivity extends AppCompatActivity implements OnMapRead
 
     DrugModel drugModel = new DrugModel();
     PharmacyModel pharmacyModel = new PharmacyModel();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +93,6 @@ public class MapsPharmacyActivity extends AppCompatActivity implements OnMapRead
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.pharmacy_map_fragment);
         mapFragment.getMapAsync(MapsPharmacyActivity.this::onMapReady);
-        buildLocationRequest();
 
         pharmacyNameTextView = findViewById(R.id.card_view_pharmacy_name_textView);
         pharmacyLocationTextView = findViewById(R.id.card_view_parmacy_location_textView);
@@ -106,6 +110,28 @@ public class MapsPharmacyActivity extends AppCompatActivity implements OnMapRead
 
         pharmacyNameTextView.setText(pharmacyName);
         pharmacyLocationTextView.setText(pharmacyLocation);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        /**
+         * Call on location permissions.
+         */
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+                        }
+                    }
+                });
 
         submitActivityMapsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,93 +172,40 @@ public class MapsPharmacyActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        requestPermissions();
+//        requestPermissions();
+        if(locationPermission) {
+//            getMyLocation();
+        }
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 Log.d("onMapClick", "Coordinates" + latLng.latitude + " | " + latLng.longitude);
+                latLng = new LatLng(latLng.latitude, latLng.longitude);
+
+                googleMap.clear();
+
                 pharmacyXLongitude.setText(String.format("X:%s", latLng.longitude));
                 pharmacyYLatitude.setText(String.format("Y: %s", latLng.latitude));
 
                 pharmacyLatitude = latLng.latitude;
                 pharmacyLongitude = latLng.longitude;
 
-                addMarker(latLng);
+                marker = googleMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(pharmacyName)
+                        .snippet("Pharmacy's location.")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+
+//                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5f));
+//                Location currentLocation = LocationServices.Fused.getLastLocation(googleApiClient);
             }
         });
     }
 
     private void addMarker(LatLng latLng) {
-        latLng = new LatLng(latLng.longitude, latLng.latitude);
-
-        marker = googleMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(pharmacyName)
-                .snippet("Pharmacy's location.")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5f));
-    }
-
-    private void buildLocationRequest() {
-        locationRequest = new LocationRequest();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(1000); //15 seconds
-        locationRequest.setFastestInterval(10000); //10 seconds
-        locationRequest.setSmallestDisplacement(20f); // 20 meters
-    }
-
-    private void requestPermissions() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    Common.LOCATION_REQUEST_CODE);
-        } else {
-            locationPermission = true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case Common.LOCATION_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    locationPermission = true;
-                    getMyLocation();
-                } else {
-                    Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
-                }
-                return;
-            }
-        }
-    }
-
-    private void getMyLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        googleMap.setMyLocationEnabled(true);
-        googleMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-            @Override
-            public void onMyLocationChange(Location location) {
-                myLocation = location;
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                        latLng, 16f);
-
-                googleMap.animateCamera(cameraUpdate);
-            }
-        });
 
     }
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        return false;
-    }
 }

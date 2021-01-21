@@ -12,8 +12,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -114,13 +116,16 @@ public class AddDrugActivity extends AppCompatActivity {
                          * on a separate activity.
                          */
                         drugReference.child(drugId).setValue(drugListModel)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
-                                public void onSuccess(Void aVoid) {
+                                public void onComplete(@NonNull Task<Void> task) {
                                     Log.d(TAG + "submitToFirebase", "Success");
                                     Toast.makeText(AddDrugActivity.this, "Created a copy to Drug list.", Toast.LENGTH_SHORT).show();
+                                    submitButton.setText("Submitted");
+                                    submitButton.setEnabled(false);
+//                                    submitButton.setBackgroundColor(COLOR.GREY);
                                 }
-                            })
+                        })
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
