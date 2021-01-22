@@ -30,4 +30,5 @@
     <string name="search">Search</string>
     <string name="add_drugs">Add Drugs</string>
     <string name="pharmacy_name">Pharmacy Name</string>
+    <string name="maps_api_key">AIzaSyBl5MEJvaKveEKEo_-Js_8PolRKXIm0-vM</string>
 </resources>
