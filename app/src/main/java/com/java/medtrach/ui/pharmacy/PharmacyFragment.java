@@ -68,9 +68,6 @@ public class PharmacyFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_catalogue, container, false);
-
-        Button addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
-
         searchBarEditText = root.findViewById(R.id.catalogue_search_bar);
         microphoneButton = root.findViewById(R.id.catalogue_microphone_image);
 
@@ -163,13 +160,6 @@ public class PharmacyFragment extends Fragment {
                 startActivity(intent);
             }
         });
-//        root.findViewById(R.id.add_drugs_button).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(getContext(), AddDrugActivity.class);
-//                startActivity(intent);
-//            }
-//        });
 
         loadData("");
 
@@ -186,22 +176,15 @@ public class PharmacyFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(editable.toString() != null) {
+                if (editable.toString() != null) {
                     loadData(editable.toString());
                 } else {
                     loadData("");
                 }
             }
         });
-
         return root;
     }
-
-
-    /**
-     * Loads pharmacy first.
-     * @param data
-     */
 
     private void loadData(String data) {
         Query query = pharmacyReference.orderByChild("pharmacyName").startAt(data).endAt(data + "\uf8ff");
@@ -211,15 +194,8 @@ public class PharmacyFragment extends Fragment {
                 .build();
 
         adapter = new FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder>(options) {
-            @NonNull
             @Override
-            public PharmacyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_pharmacy, parent, false);
-                return new PharmacyViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull PharmacyViewHolder holder, int position, @NonNull PharmacyModel model) {
+            protected void onBindViewHolder(@NonNull final PharmacyViewHolder holder, int position, @NonNull PharmacyModel model) {
 
                 final String myPharmacyId = model.getPharmacyId();
                 final String myPharmacyName = model.getPharmacyName();
@@ -231,12 +207,10 @@ public class PharmacyFragment extends Fragment {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(getActivity(), PharmacyDetailedActivity.class);
-
                         try {
-                            intent.putExtra("pharmacyId", myPharmacyId);
+                            Intent intent = new Intent(getActivity(), PharmacyDetailedActivity.class);
+                            intent.putExtra("pharmacyId", getRef(position).getKey());
                             Log.d(TAG, "Pharmacy ID: " + myPharmacyId);
-
                             startActivity(intent);
                         } catch (NullPointerException e) {
                             Toast.makeText(getContext(), "E: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -244,11 +218,17 @@ public class PharmacyFragment extends Fragment {
                     }
                 });
             }
-            };
+
+            @NonNull
+            @Override
+            public PharmacyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_pharmacy, parent, false);
+                return new PharmacyViewHolder(view);
+            }
+        };
 
         adapter.startListening();
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
         }
 
 
