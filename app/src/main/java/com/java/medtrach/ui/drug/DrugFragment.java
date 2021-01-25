@@ -53,6 +53,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * 1. Search kelangan pa kasi i-tap para magpakita yung list.
+ * 2. On start, show logo, on speak show desired list.
+ * 3. On tap Firebase Recycler Adapter, imediately show route rather than on button click.
+ * 4. On map show options for walking, driving, motorcycle.
+ * 5. waze pathing
+ * 6. remove debug coords.
+ */
+
 public class DrugFragment extends Fragment {
     private static final String TAG = DrugFragment.class.getName();
     public static final Integer RecordAudioRequestCode = 1;
