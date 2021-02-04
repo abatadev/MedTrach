@@ -30,9 +30,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.NotNull;
+import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
 import com.java.medtrach.model.DrugModel;
@@ -112,7 +117,7 @@ public class PharmacyFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-                microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                microphoneButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
             }
@@ -130,13 +135,13 @@ public class PharmacyFragment extends Fragment {
         microphoneButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Toast.makeText(getContext(), "TESTING MIC!!!", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "TESTING MIC!!!", Toast.LENGTH_SHORT).show();
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     speechRecognizer.stopListening();
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                    microphoneButton.setImageResource(R.drawable.ic_baseline_map_24);
+                    microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
                     speechRecognizer.startListening(speechRecognizerIntent);
                 }
                 return false;
@@ -203,19 +208,53 @@ public class PharmacyFragment extends Fragment {
                 holder.pharmacyName.setText(myPharmacyName);
                 holder.pharmacyLocation.setText(myPharmacyLocation);
 
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                pharmacyReference.child(myPharmacyId).addListenerForSingleValueEvent(new ValueEventListener() {
+
                     @Override
-                    public void onClick(View view) {
-                        try {
-                            Intent intent = new Intent(getActivity(), PharmacyDetailedActivity.class);
-                            intent.putExtra("pharmacyId", getRef(position).getKey());
-                            Log.d(TAG, "Pharmacy ID: " + myPharmacyId);
-                            startActivity(intent);
-                        } catch (NullPointerException e) {
-                            Toast.makeText(getContext(), "E: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                        final String pharmacyId = snapshot.child("pharmacyId").getValue().toString();
+                        final String pharmacyName = snapshot.child("pharmacyName").getValue().toString();
+                        final String pharmacyLocation = snapshot.child("pharmacyLocation").getValue().toString();
+
+                        final Double pharmacyLongitude = (Double) snapshot.child("pharmacyLocationX").getValue();
+                        final Double pharmacyLatitude = (Double) snapshot.child("pharmacyLocationY").getValue();
+
+                        Log.d(TAG, "From Firebase Database");
+                        Log.d(TAG, "ID: " + pharmacyId);
+                        Log.d(TAG, "Name: " + pharmacyName);
+                        Log.d(TAG, "Location: " + pharmacyLocation);
+                        Log.d(TAG, "Pharmacy Longitude: " + pharmacyLongitude);
+                        Log.d(TAG, "Pharmacy Latitude: " + pharmacyLatitude);
+
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                try {
+                                    Intent intent = new Intent(getActivity(), MapsActivity.class);
+
+                                    intent.putExtra("pharmacyId", pharmacyId);
+                                    intent.putExtra("pharmacyName", pharmacyName);
+                                    intent.putExtra("pharmacyLocation", pharmacyLocation);
+                                    intent.putExtra("pharmacyLongitude", pharmacyLongitude);
+                                    intent.putExtra("pharmacyLatitude", pharmacyLatitude);
+
+                                    startActivity(intent);
+                                } catch (NullPointerException e) {
+                                    Toast.makeText(getContext(), "E: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
                     }
                 });
+
+
+
             }
 
             @NonNull

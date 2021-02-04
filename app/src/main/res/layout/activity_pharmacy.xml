@@ -16,6 +16,7 @@
         android:textColor="@color/colorWhite"
         android:text="@string/add_drugs"
         android:textStyle="bold"
+        android:visibility="gone"
         android:layout_marginBottom="4dp"/>
 
     <androidx.cardview.widget.CardView

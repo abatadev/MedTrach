@@ -15,6 +15,7 @@
         android:textColor="@color/colorWhite"
         android:text="Add Pharmacy"
         android:textStyle="bold"
+        android:visibility="gone"
         android:layout_marginBottom="4dp" />
 
     <LinearLayout

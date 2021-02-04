@@ -113,7 +113,7 @@ public class CatalogueFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-                microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                microphoneButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
             }
@@ -131,13 +131,13 @@ public class CatalogueFragment extends Fragment {
         microphoneButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Toast.makeText(getContext(), "TESTING MIC!!!", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "Listening...", Toast.LENGTH_SHORT).show();
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     speechRecognizer.stopListening();
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                    microphoneButton.setImageResource(R.drawable.ic_baseline_map_24);
+                    microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
                     speechRecognizer.startListening(speechRecognizerIntent);
                 }
                 return false;

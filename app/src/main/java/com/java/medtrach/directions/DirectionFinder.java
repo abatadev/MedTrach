@@ -2,6 +2,7 @@ package com.java.medtrach.directions;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -24,14 +25,16 @@ public class DirectionFinder {
 
     private static final String DISTANCE_MATRIX_DIRECTION_URL = "https://maps.googleapis.com/maps/api/directions/json?";
     private static final String GOOGLE_DIRECTION_API_KEY = "AIzaSyBl5MEJvaKveEKEo_-Js_8PolRKXIm0-vM";  // replace with your google direction api
+    private static final String TAG = DirectionFinder.class.getSimpleName();
+
     private DirectionFinderListener listener;
     private String origin;
     private String destination;
 
-    public DirectionFinder(DirectionFinderListener listener, String origin, String destination) {
+    public DirectionFinder(DirectionFinderListener listener, String fusedOrigin, String fuseDestination) {
         this.listener = listener;
-        this.origin = origin;
-        this.destination = destination;
+        this.origin = fusedOrigin;
+        this.destination = fuseDestination;
     }
 
     public void execute() throws UnsupportedEncodingException {
@@ -40,6 +43,8 @@ public class DirectionFinder {
     }
 
     private String createUrl() throws UnsupportedEncodingException {
+        Log.d(TAG, "Origin: " + origin);
+        Log.d(TAG, "Destination: " + destination);
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
         return DISTANCE_MATRIX_DIRECTION_URL + "origin=" + urlOrigin + "&destination=" + urlDestination + "&key=" + GOOGLE_DIRECTION_API_KEY;

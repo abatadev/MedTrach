@@ -179,7 +179,7 @@ public class MapsActivity extends AppCompatActivity implements
         findViewById(R.id.debug_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getLastLocation();
+
             }
         });
 
@@ -271,25 +271,25 @@ public class MapsActivity extends AppCompatActivity implements
             return;
         }
         mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            Log.d(TAG, "Fused Latitude: " + location.getLatitude());
-                            Log.d(TAG, "Fused Longitude: " + location.getLongitude());
-                            myLatitude = location.getLatitude();
-                            myLongitude = location.getLongitude();
-                            myLatLng = new LatLng(myLatitude, myLongitude);
-                        }
+            .addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location != null) {
+                        Log.d(TAG, "Fused Latitude: " + location.getLatitude());
+                        Log.d(TAG, "Fused Longitude: " + location.getLongitude());
+                        myLatitude = location.getLatitude();
+                        myLongitude = location.getLongitude();
+                        myLatLng = new LatLng(myLatitude, myLongitude);
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error trying to get GPS location");
-                        e.printStackTrace();
-                    }
-                });
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "Error trying to get GPS location");
+                    e.printStackTrace();
+                }
+            });
     }
 
     @Override
@@ -317,11 +317,11 @@ public class MapsActivity extends AppCompatActivity implements
         }
 //        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(pharmacyLatLng));
         googleMap.animateCamera(buildCameraUpdate(routes.get(0).endLocation), 10, null);
-//        googleMap.animateCamera(buildCameraUpdate(myLatLng), 10, null);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        getLastLocation();
         myLatLngMarker = googleMap.addMarker(new MarkerOptions()
                 .position(myLatLng)
                 .title("You")

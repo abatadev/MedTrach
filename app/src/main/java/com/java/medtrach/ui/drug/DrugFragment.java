@@ -151,7 +151,7 @@ public class DrugFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-                microphoneImageView.setImageResource(R.drawable.ic_baseline_mic_24);
+                microphoneImageView.setImageResource(R.drawable.ic_baseline_mic_off_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
             }
@@ -170,13 +170,11 @@ public class DrugFragment extends Fragment {
         microphoneImageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Toast.makeText(getContext(), "TESTING MIC!!!", Toast.LENGTH_SHORT).show();
-
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     speechRecognizer.stopListening();
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                    microphoneImageView.setImageResource(R.drawable.ic_baseline_map_24);
+                    microphoneImageView.setImageResource(R.drawable.ic_baseline_mic_24);
                     speechRecognizer.startListening(speechRecognizerIntent);
                 }
                 return false;

@@ -48,16 +48,6 @@ import com.java.medtrach.model.PharmacyModel;
 import static java.security.AccessController.getContext;
 
 
-/**
- * TODO
- * 1. Set permissions OK
- * 2. Get current location OK - FIX
- * 3. Set fragment OK - Workaround
- * 4. Add coordinates - OK
- * 5. Pass coordinates to previous intent - TO DO
- * 6. Pass intents - TO DO
- * 7. Fix bugs - TO DO
- */
 
 public class MapsPharmacyActivity extends AppCompatActivity implements OnMapReadyCallback {
 
