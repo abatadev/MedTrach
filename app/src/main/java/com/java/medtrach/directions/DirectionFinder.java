@@ -30,11 +30,13 @@ public class DirectionFinder {
     private DirectionFinderListener listener;
     private String origin;
     private String destination;
+    private String mapModeOption;
 
-    public DirectionFinder(DirectionFinderListener listener, String fusedOrigin, String fuseDestination) {
+    public DirectionFinder(DirectionFinderListener listener, String fusedOrigin, String fuseDestination, String fusedMapModeOption) {
         this.listener = listener;
         this.origin = fusedOrigin;
         this.destination = fuseDestination;
+        this.mapModeOption = fusedMapModeOption;
     }
 
     public void execute() throws UnsupportedEncodingException {
@@ -47,7 +49,10 @@ public class DirectionFinder {
         Log.d(TAG, "Destination: " + destination);
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
-        return DISTANCE_MATRIX_DIRECTION_URL + "origin=" + urlOrigin + "&destination=" + urlDestination + "&key=" + GOOGLE_DIRECTION_API_KEY;
+        String urlMode = URLEncoder.encode(mapModeOption, "utf-8");
+        String finalUrl = DISTANCE_MATRIX_DIRECTION_URL + "origin=" + urlOrigin + "&destination=" + urlDestination + "&key=" + GOOGLE_DIRECTION_API_KEY + "&mode=" + urlMode;
+        Log.d(TAG, "URL : " + finalUrl);
+        return finalUrl;
     }
 
     private void parseJSon(String data) throws JSONException {

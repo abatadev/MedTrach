@@ -16,6 +16,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -72,12 +73,23 @@ public class MapsActivity extends AppCompatActivity implements
         PLAIN
     }
 
+    private enum MapModeStyle {
+        WALKING,
+        DRIVING
+    }
+
     private static final String[] POLYLINE_STYLE_OPTIONS = new String[]{
             "PLAIN",
             "DOTTED"
     };
 
-    PolylineStyle polylineStyle = PolylineStyle.DOTTED; //RUNTIME ERROR
+    private static final String[] MAP_MODE_OPTIONS = new String[]{
+            "WALKING",
+            "DRIVING"
+    };
+
+    PolylineStyle polylineStyle = PolylineStyle.DOTTED;
+    MapModeStyle mapModeStyle = MapModeStyle.WALKING;
 
     private LatLng pharmacyLatLng;
     private LatLng myLatLng;
@@ -86,7 +98,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     private GoogleMap googleMap;
     private Polyline polyline;
-    private TextView XCoordinateTextView, YCoordinateTextView;
+    private TextView pharmacyNameTextView, pharmacyLocationTextView;
     private MaterialDialog materialDialog;
 
     private Location finalLocation, gpsLocation, networkLocation, passiveLocation, extraLocation;
@@ -99,8 +111,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     private Double myLatitude, myLongitude;
     private Double pharmacyLatitude, pharmacyLongitude;
-    private String pharmacyId;
-
+    private String pharmacyId, pharmacyName, pharmacyLocation;
+    String mapModeOption;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,15 +126,18 @@ public class MapsActivity extends AppCompatActivity implements
             this.googleMap = googleMap;
         });
 
-        XCoordinateTextView = findViewById(R.id.x_coordinate_activity_maps_textView);
-        YCoordinateTextView = findViewById(R.id.y_coordinate_activity_maps_textView);
         pharmacyReference = FirebaseDatabase.getInstance().getReference(Common.PHARMACY_REF);
 
         AppCompatSpinner polylineStyleSpinner = findViewById(R.id.polylineStyleSpinner);
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, POLYLINE_STYLE_OPTIONS);
+        AppCompatSpinner mapModeSpinner = findViewById(R.id.modeMapSpinner);
+        pharmacyNameTextView = findViewById(R.id.maps_pharmacy_name_textView);
+        pharmacyLocationTextView = findViewById(R.id.maps_pharmacy_address_textView);
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        polylineStyleSpinner.setAdapter(adapter);
+        ArrayAdapter polyLineAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, POLYLINE_STYLE_OPTIONS);
+        ArrayAdapter mapModeAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, MAP_MODE_OPTIONS);
+
+        polyLineAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        polylineStyleSpinner.setAdapter(polyLineAdapter);
         polylineStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -145,6 +160,30 @@ public class MapsActivity extends AppCompatActivity implements
 
             }
         });
+
+        mapModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        mapModeSpinner.setAdapter(mapModeAdapter);
+        mapModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                if (position == 0) {
+                    mapModeStyle = MapModeStyle.WALKING;
+                    mapModeOption = "walking";
+                    Log.d(TAG, "Map Mode Spinner: " + mapModeStyle);
+                } else if (position == 1) {
+                    mapModeStyle = MapModeStyle.DRIVING;
+                    mapModeOption = "driving";
+                    Log.d(TAG, "Map Mode Spinner: " + mapModeStyle);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(MapsActivity.this, "Please select a mode from the option.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -172,14 +211,8 @@ public class MapsActivity extends AppCompatActivity implements
                 //Concat PharmacyLatLng and MyLatLng to String
                 String origin = pharmacyLatitude + "," + pharmacyLongitude;
                 String destination = myLatitude + "," + myLongitude;
-                fetchDirections(origin, destination);
-            }
-        });
-
-        findViewById(R.id.debug_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
+                Log.d(TAG, "Map Mode: " + mapModeOption);
+                fetchDirections(origin, destination, mapModeOption);
             }
         });
 
@@ -221,12 +254,19 @@ public class MapsActivity extends AppCompatActivity implements
             Log.d(TAG, "Type: null");
         }
 
-        XCoordinateTextView.setText(myLatitude.toString());
-        YCoordinateTextView.setText(myLongitude.toString());
+
 
         Intent intent = getIntent();
+        //        XCoordinateTextView.setText(myLatitude.toString());
+
+//        YCoordinateTextView.setText(myLongitude.toString());
 
         pharmacyId = intent.getStringExtra("pharmacyId");
+        pharmacyName = intent.getStringExtra("pharmacyName");
+        pharmacyLocation = intent.getStringExtra("pharmacyLocation");
+        pharmacyNameTextView.setText(pharmacyName);
+        pharmacyLocationTextView.setText(pharmacyLocation);
+
         assert pharmacyId != null;
         pharmacyReference.child(pharmacyId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -257,9 +297,9 @@ public class MapsActivity extends AppCompatActivity implements
                 1);
     }
 
-    private void fetchDirections(String origin, String destination) {
+    private void fetchDirections(String origin, String destination, String mapModeOption) {
         try {
-            new DirectionFinder(this, origin, destination).execute();
+            new DirectionFinder(this, origin, destination, mapModeOption).execute();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -280,6 +320,7 @@ public class MapsActivity extends AppCompatActivity implements
                         myLatitude = location.getLatitude();
                         myLongitude = location.getLongitude();
                         myLatLng = new LatLng(myLatitude, myLongitude);
+                        googleMap.animateCamera(buildCameraUpdate(myLatLng), 15, null);
                     }
                 }
             })
@@ -309,6 +350,8 @@ public class MapsActivity extends AppCompatActivity implements
                 PolylineOptions polylineOptions = getDefaultPolyLines(route.points);
                 if (polylineStyle == PolylineStyle.DOTTED)
                     polylineOptions = getDottedPolylines(route.points);
+//                if (mapModeStyle == MapModeStyle.DRIVING)
+
                 polyline = googleMap.addPolyline(polylineOptions);
             }
         } catch (Exception e) {
@@ -316,7 +359,7 @@ public class MapsActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
 //        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(pharmacyLatLng));
-        googleMap.animateCamera(buildCameraUpdate(routes.get(0).endLocation), 10, null);
+        googleMap.animateCamera(buildCameraUpdate(routes.get(0).endLocation), 15, null);
     }
 
     @Override
@@ -334,7 +377,6 @@ public class MapsActivity extends AppCompatActivity implements
                 .snippet("Pharmacy's location")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 14.0f));
     }
 
 }
