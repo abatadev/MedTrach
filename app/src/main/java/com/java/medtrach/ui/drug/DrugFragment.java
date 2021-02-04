@@ -206,33 +206,6 @@ public class DrugFragment extends Fragment {
             }
         });
 
-//        drugReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                final String drugPharmacyId = snapshot.child("pharmacyId").getValue(String.class);
-//                final String drugPharmacyName = snapshot.child("drugPharmacyName").getValue(String.class);
-//                final String drugPharmacyLocation = snapshot.child("drugPharmacyLocation").getValue(String.class);
-//
-//                final String drugId = snapshot.child("drugId").getValue(String.class);
-//                final String drugName = snapshot.child("drugName").getValue(String.class);
-//                final String drugDescription = snapshot.child("drugDescription").getValue(String.class);
-//
-//
-//                Log.d(TAG, "ID: " + drugPharmacyId);
-//                Log.d(TAG, "Name: " + drugPharmacyName);
-//                Log.d(TAG, "Location: " + drugPharmacyLocation);
-//
-//                Log.d(TAG, drugId);
-//                Log.d(TAG, drugName);
-//                Log.d(TAG, drugDescription);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull  DatabaseError error) {
-//                Log.d(TAG, "E: " + error.getMessage());
-//            }
-//        });
-
         return root;
     }
 
@@ -244,34 +217,22 @@ public class DrugFragment extends Fragment {
                 .build();
 
         adapter = new FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder>(options) {
-            @NonNull
-            @Override
-            public DrugsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_drugs, parent, false);
-                return new DrugsViewHolder(view);
-            }
 
             @Override
             protected void onBindViewHolder(@NonNull DrugsViewHolder holder, int position, @NonNull DrugModel model) {
-                final String myDrugName, myDrugDescription, myDrugPharmacyId, myDrugPharmacyName, myDrugPharmacyLocation;
 
-                myDrugPharmacyId = model.getDrugPharmacyId();
-                myDrugName = model.getDrugName();
-                myDrugDescription = model.getDrugDescription();
-                myDrugPharmacyName = model.getDrugPharmacyName();
-                myDrugPharmacyLocation = model.getDrugPharmacyLocation();
+                holder.drugName.setText(model.getDrugName());
+                holder.drugDescription.setText(model.getDrugDescription());
+                holder.pharmacyName.setText(model.getDrugPharmacyName());
+                holder.pharmacyLocation.setText(model.getDrugPharmacyLocation());
 
-                holder.drugName.setText(myDrugName);
-                holder.drugDescription.setText(myDrugDescription);
-                holder.pharmacyName.setText(myDrugPharmacyName);
-                holder.pharmacyLocation.setText(myDrugPharmacyLocation);
 
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(getActivity(), MapsActivity.class);
                         try {
-                            intent.putExtra("pharmacyId", myDrugPharmacyId);
+                            intent.putExtra("pharmacyId", model.getDrugPharmacyId());
                             startActivity(intent);
                         } catch (NullPointerException e) {
                             Toast.makeText(getContext(), "E: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -279,6 +240,14 @@ public class DrugFragment extends Fragment {
                     }
                 });
             }
+
+            @NonNull
+            @Override
+            public DrugsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_drugs, parent, false);
+                return new DrugsViewHolder(view);
+            }
+
 
         };
         adapter.startListening();
@@ -301,6 +270,22 @@ public class DrugFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStart() {
+        adapter.startListening();
+        adapter.notifyDataSetChanged();
+        super.onStart();
+    }
 
+    @Override
+    public void onStop() {
+        adapter.stopListening();
+        super.onStop();
+    }
 
+    @Override
+    public void onResume() {
+        adapter.notifyDataSetChanged();
+        super.onResume();
+    }
 }

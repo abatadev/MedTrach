@@ -54,7 +54,6 @@ public class PharmacyFragment extends Fragment {
     public  final Integer RecordAudioRequestCode = 1;
 
     private RecyclerView.LayoutManager layoutManager;
-    private View view;
     private RecyclerView recyclerView;
 
     FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder> adapter;
@@ -245,6 +244,25 @@ public class PharmacyFragment extends Fragment {
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 Toast.makeText(getContext(),"Permission Granted", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onStart() {
+        adapter.startListening();
+        adapter.notifyDataSetChanged();
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        adapter.stopListening();
+        super.onStop();
+    }
+
+    @Override
+    public void onResume() {
+        adapter.notifyDataSetChanged();
+        super.onResume();
     }
 
 }
