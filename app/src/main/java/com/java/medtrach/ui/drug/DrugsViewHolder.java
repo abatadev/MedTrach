@@ -11,7 +11,7 @@ import com.java.medtrach.R;
 public class DrugsViewHolder extends RecyclerView.ViewHolder {
 
     TextView drugName, drugDescription;
-    TextView pharmacyName, pharmacyLocation;
+    TextView pharmacyName, pharmacyLocation, pharmacyDistance;
 
     public DrugsViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -19,6 +19,7 @@ public class DrugsViewHolder extends RecyclerView.ViewHolder {
         drugName = itemView.findViewById(R.id.drug_name_text_view);
         drugDescription = itemView.findViewById(R.id.drug_description_text_view);
         pharmacyName = itemView.findViewById(R.id.card_view_pharmacy_name_textView);
-        pharmacyLocation = itemView.findViewById(R.id.card_view_pharmacy_location_textView);
+        pharmacyLocation = itemView.findViewById(R.id.card_view_drugs_location_textView);
+        pharmacyDistance = itemView.findViewById(R.id.card_view_drugs_distance_textView);
     }
 }

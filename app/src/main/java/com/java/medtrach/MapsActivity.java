@@ -376,8 +376,6 @@ public class MapsActivity extends AppCompatActivity implements
             userMarker.setRotation(location.getBearing());
             pharmacyMarker.setPosition(pharmacyLatLng);
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-
-
         }
 
         if (userLocationAccuracyCircle == null) {

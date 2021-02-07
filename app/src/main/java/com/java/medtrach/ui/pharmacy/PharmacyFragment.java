@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
@@ -30,6 +31,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,9 +43,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.NotNull;
+import com.google.maps.android.SphericalUtil;
 import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
+import com.java.medtrach.common.LatLngInterpolator;
 import com.java.medtrach.model.DrugModel;
 import com.java.medtrach.model.PharmacyModel;
 
@@ -64,6 +72,10 @@ public class PharmacyFragment extends Fragment {
     FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder> adapter;
     FirebaseRecyclerOptions<PharmacyModel> options;
     private DatabaseReference drugReference, pharmacyReference;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private Double myLatitude, myLongitude;
+    private LatLng myLatLng, pharmacyLatLng;
 
     private DrugModel drugModel;
 
@@ -148,6 +160,25 @@ public class PharmacyFragment extends Fragment {
             }
         });
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if(location != null) {
+                            myLongitude = location.getLongitude();
+                            myLatitude = location.getLatitude();
+
+                            myLatLng = new LatLng(myLatitude, myLongitude);
+
+                            Log.d(TAG, "onSuccess: " + myLongitude);
+                            Log.d(TAG, "onSuccess: " + myLatitude);
+                        }
+                    }
+                });
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+
         drugModel = new DrugModel();
 
         recyclerView = (RecyclerView) root.findViewById(R.id.catalogue_recycler_view);
@@ -204,6 +235,8 @@ public class PharmacyFragment extends Fragment {
                 final String myPharmacyId = model.getPharmacyId();
                 final String myPharmacyName = model.getPharmacyName();
                 final String myPharmacyLocation = model.getPharmacyLocation();
+                final Double myPharmacyLatitude = model.getPharmacyLocationY();
+                final Double myPharmacyLongitude = model.getPharmacyLocationX();
 
                 holder.pharmacyName.setText(myPharmacyName);
                 holder.pharmacyLocation.setText(myPharmacyLocation);
@@ -217,15 +250,17 @@ public class PharmacyFragment extends Fragment {
                         final String pharmacyName = snapshot.child("pharmacyName").getValue().toString();
                         final String pharmacyLocation = snapshot.child("pharmacyLocation").getValue().toString();
 
-                        final Double pharmacyLongitude = (Double) snapshot.child("pharmacyLocationX").getValue();
-                        final Double pharmacyLatitude = (Double) snapshot.child("pharmacyLocationY").getValue();
-
                         Log.d(TAG, "From Firebase Database");
                         Log.d(TAG, "ID: " + pharmacyId);
                         Log.d(TAG, "Name: " + pharmacyName);
                         Log.d(TAG, "Location: " + pharmacyLocation);
-                        Log.d(TAG, "Pharmacy Longitude: " + pharmacyLongitude);
-                        Log.d(TAG, "Pharmacy Latitude: " + pharmacyLatitude);
+
+                        pharmacyLatLng = new LatLng(myPharmacyLatitude, myPharmacyLongitude);
+                        double distance = SphericalUtil.computeDistanceBetween(myLatLng, pharmacyLatLng) / 1000;
+                        String convertedDistance = String.format("%.2f", distance).toLowerCase();
+
+                        Log.d(TAG, "onDataChange: Distance " + distance);
+                        holder.pharmacyDistance.setText(convertedDistance + "km");
 
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -236,8 +271,8 @@ public class PharmacyFragment extends Fragment {
                                     intent.putExtra("pharmacyId", pharmacyId);
                                     intent.putExtra("pharmacyName", pharmacyName);
                                     intent.putExtra("pharmacyLocation", pharmacyLocation);
-                                    intent.putExtra("pharmacyLongitude", pharmacyLongitude);
-                                    intent.putExtra("pharmacyLatitude", pharmacyLatitude);
+//                                    intent.putExtra("pharmacyLongitude", pharmacyLongitude);
+//                                    intent.putExtra("pharmacyLatitude", pharmacyLatitude);
 
                                     startActivity(intent);
                                 } catch (NullPointerException e) {

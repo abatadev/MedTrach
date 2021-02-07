@@ -9,12 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.java.medtrach.R;
 
 public class PharmacyViewHolder extends RecyclerView.ViewHolder {
-    TextView pharmacyName, pharmacyLocation;
+    TextView pharmacyName, pharmacyLocation, pharmacyDistance;
 
     public PharmacyViewHolder(@NonNull View itemView) {
         super(itemView);
 
         pharmacyName = itemView.findViewById(R.id.pharmacy_name_text_view);
         pharmacyLocation = itemView.findViewById(R.id.pharmacy_location_text_view);
+        pharmacyDistance = itemView.findViewById(R.id.drugs_pharmacy_distance_text_view);
     }
 }

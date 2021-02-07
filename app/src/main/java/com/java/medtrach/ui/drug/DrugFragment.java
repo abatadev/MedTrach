@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
@@ -32,6 +33,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +45,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.NotNull;
+import com.google.maps.android.SphericalUtil;
 import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
@@ -54,14 +61,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * 1. Search kelangan pa kasi i-tap para magpakita yung list.
- * 2. On start, show logo, on speak show desired list.
- * 3. On tap Firebase Recycler Adapter, imediately show route rather than on button click.
- * 4. On map show options for walking, driving, motorcycle.
- * 5. waze pathing
- * 6. remove debug coords.
- */
+
 
 public class DrugFragment extends Fragment {
     private static final String TAG = DrugFragment.class.getName();
@@ -77,7 +77,6 @@ public class DrugFragment extends Fragment {
     DatabaseReference pharmacyReference;
     DatabaseReference drugReference;
 
-    //Insert Adapter
     FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder> adapter;
     FirebaseRecyclerOptions<DrugModel> options;
 
@@ -86,6 +85,11 @@ public class DrugFragment extends Fragment {
     private TextView pharmacyName, pharmacyLocation;
     private EditText searchBarEditText;
     private ImageView microphoneImageView;
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private Double myLatitude, myLongitude;
+    private LatLng myLatLng, pharmacyLatLng;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -113,6 +117,27 @@ public class DrugFragment extends Fragment {
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
             checkPermission();
         }
+
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if(location != null) {
+                            myLongitude = location.getLongitude();
+                            myLatitude = location.getLatitude();
+
+                            myLatLng = new LatLng(myLatitude, myLongitude);
+
+                            Log.d(TAG, "onSuccess: " + myLongitude);
+                            Log.d(TAG, "onSuccess: " + myLatitude);
+                        }
+                    }
+                });
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -215,12 +240,13 @@ public class DrugFragment extends Fragment {
                 .setQuery(query, DrugModel.class)
                 .build();
 
+
         adapter = new FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder>(options) {
-
             @Override
-            protected void onBindViewHolder(@NonNull DrugsViewHolder holder, int position, @NonNull DrugModel model) {
-
+            protected void onBindViewHolder(@NonNull DrugsViewHolder holder, final int position, @NonNull DrugModel model) {
                 final String myDrugId = model.getDrugId().toString();
+                final Double myPharmacyLatitude = model.getDrugPharmacyLatitude();
+                final Double myPharmacyLongitude = model.getDrugPharmacyLongitude();
 
                 holder.drugName.setText(model.getDrugName());
                 holder.drugDescription.setText(model.getDrugDescription());
@@ -232,17 +258,26 @@ public class DrugFragment extends Fragment {
                     public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
                         Log.d(TAG, "onDataChange: Drug ID " +  myDrugId);
+                        final String pharmacyId = snapshot.child("drugPharmacyId").getValue(String.class);
                         final String pharmacyName = snapshot.child("drugPharmacyName").getValue().toString();
                         final String pharmacyLocation = snapshot.child("drugPharmacyLocation").getValue().toString();
                         final Double pharmacyLongitude = (Double) snapshot.child("pharmacyLocationX").getValue();
                         final Double pharmacyLatitude = (Double) snapshot.child("pharmacyLocationY").getValue();
+
+                        pharmacyLatLng = new LatLng(myPharmacyLatitude, myPharmacyLongitude);
+                        double distance = SphericalUtil.computeDistanceBetween(myLatLng, pharmacyLatLng) / 1000;
+                        String convertedDistance = String.format("%.2f", distance).toLowerCase()    ;
+
+                        Log.d(TAG, "onDataChange: Distance " + distance);
+                        holder.pharmacyDistance.setText(convertedDistance + "km");
 
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(getActivity(), MapsActivity.class);
                                 try {
-                                    intent.putExtra("pharmacyId", model.getDrugPharmacyId());
+                                    intent.putExtra("pharmacyId", pharmacyId);
+//                                    intent.putExtra("pharmacyId", pharmacyId);
                                     intent.putExtra("pharmacyName", pharmacyName);
                                     intent.putExtra("pharmacyLocation", pharmacyLocation);
                                     intent.putExtra("pharmacyLongitude", pharmacyLongitude);
@@ -275,7 +310,6 @@ public class DrugFragment extends Fragment {
         };
         adapter.startListening();
         recyclerView.setAdapter(adapter);
-//        adapter.notifyDataSetChanged();
     }
 
     private void checkPermission() {

@@ -2,10 +2,12 @@ package com.java.medtrach.ui.pharmacy;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -42,12 +44,14 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.maps.android.SphericalUtil;
 import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
@@ -55,7 +59,17 @@ import com.java.medtrach.model.DrugModel;
 import com.java.medtrach.model.PharmacyModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -75,6 +89,11 @@ public class CatalogueFragment extends Fragment {
     FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder> adapter;
     FirebaseRecyclerOptions<PharmacyModel> options;
     private DatabaseReference drugReference, pharmacyReference;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+
+    private Double myLatitude, myLongitude;
+    private LatLng myLatLng, pharmacyLatLng;
 
     private DrugModel drugModel;
 
@@ -90,6 +109,23 @@ public class CatalogueFragment extends Fragment {
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
             checkPermission();
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if(location != null) {
+                            myLongitude = location.getLongitude();
+                            myLatitude = location.getLatitude();
+
+                            Log.d(TAG, "onSuccess: " + myLongitude);
+                            Log.d(TAG, "onSuccess: " + myLatitude);
+                        }
+                    }
+                });
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -231,9 +267,21 @@ public class CatalogueFragment extends Fragment {
                 final String myPharmacyId = model.getPharmacyId();
                 final String myPharmacyName = model.getPharmacyName();
                 final String myPharmacyLocation = model.getPharmacyLocation();
+                final Double pharmacyLatitude = model.getPharmacyLocationX();
+                final Double pharmacyLongitude = model.getPharmacyLocationY();
+
+                Log.d(TAG, "onBindViewHolder: " + pharmacyLatitude);
+                Log.d(TAG, "onBindViewHolder: " + pharmacyLongitude);
+
+                pharmacyLatLng = new LatLng(pharmacyLatitude, pharmacyLongitude);
+                double distance = SphericalUtil.computeDistanceBetween(myLatLng, pharmacyLatLng);
 
                 holder.pharmacyName.setText(myPharmacyName);
                 holder.pharmacyLocation.setText(myPharmacyLocation);
+                holder.pharmacyDistance.setText(distance + "km");
+
+//                Log.d(TAG, "Distance: " + distance);
+
 
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
