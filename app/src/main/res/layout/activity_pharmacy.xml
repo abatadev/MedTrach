@@ -8,17 +8,6 @@
     android:orientation="vertical"
     tools:context=".ui.pharmacy.PharmacyDetailedActivity">
 
-    <Button
-        android:id="@+id/add_drugs_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorBlack"
-        android:textColor="@color/colorWhite"
-        android:text="@string/add_drugs"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_marginBottom="4dp"/>
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -60,6 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingStart="32dp"
+                    android:visibility="gone"
                     android:paddingEnd="32dp"
                     android:paddingTop="14dp"
                     android:paddingBottom="14dp"
@@ -74,7 +64,20 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp"
                     />
-        </LinearLayout>
+
+                <Button
+                    android:id="@+id/add_drugs_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorBlack"
+                    android:textColor="@color/colorWhite"
+                    android:text="@string/add_drugs"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    android:layout_marginBottom="4dp"/>
+
+            </LinearLayout>
+
 
 
 

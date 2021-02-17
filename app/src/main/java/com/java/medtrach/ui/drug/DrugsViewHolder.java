@@ -8,10 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.java.medtrach.R;
 
+import java.text.CollationElementIterator;
+
 public class DrugsViewHolder extends RecyclerView.ViewHolder {
 
-    TextView drugName, drugDescription;
-    TextView pharmacyName, pharmacyLocation, pharmacyDistance;
+
+    public TextView drugName;
+    public TextView drugDescription;
+    public TextView pharmacyName, pharmacyLocation, pharmacyDistance;
 
     public DrugsViewHolder(@NonNull View itemView) {
         super(itemView);

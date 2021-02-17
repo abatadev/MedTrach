@@ -57,6 +57,7 @@ import com.java.medtrach.common.Common;
 import com.java.medtrach.model.DrugListModel;
 import com.java.medtrach.model.DrugModel;
 import com.java.medtrach.model.PharmacyModel;
+import com.java.medtrach.ui.pharmacy.AddPharmacyActivity;
 import com.java.medtrach.ui.pharmacy.PharmacyDetailedActivity;
 import com.java.medtrach.ui.pharmacy.PharmacyViewHolder;
 
@@ -89,6 +90,7 @@ public class DrugFragment extends Fragment {
     private TextView pharmacyName, pharmacyLocation;
     private EditText searchBarEditText;
     private ImageView microphoneImageView;
+    private Button addPharmacyButton;
 
     private FusedLocationProviderClient fusedLocationClient;
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -103,10 +105,17 @@ public class DrugFragment extends Fragment {
 
         //Initialize Views and IDs
         View root = inflater.inflate(R.layout.fragment_drug, container, false);
-//        pharmacyName = root.findViewById(R.id.fragment_drug_pharmacy_name_textView);
-//        pharmacyLocation = root.findViewById(R.id.fragment_drug_pharmacy_location_textView);
         searchBarEditText = root.findViewById(R.id.drug_search_bar_edit_text);
         microphoneImageView = root.findViewById(R.id.drug_microphone_image_view);
+        addPharmacyButton = root.findViewById(R.id.add_pharmacy_button);
+
+        addPharmacyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), AddPharmacyActivity.class);
+                startActivity(intent);
+            }
+        });
 
         pharmacyModel = new PharmacyModel();
 
@@ -123,6 +132,8 @@ public class DrugFragment extends Fragment {
             checkPermission();
         }
 
+
+        loadData("");
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
         fusedLocationClient.getLastLocation()
@@ -212,7 +223,7 @@ public class DrugFragment extends Fragment {
             }
         });
 
-        loadData("");
+
 
         searchBarEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -244,7 +255,6 @@ public class DrugFragment extends Fragment {
         options = new FirebaseRecyclerOptions.Builder<DrugModel>()
                 .setQuery(query, DrugModel.class)
                 .build();
-
 
         adapter = new FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder>(options) {
             @Override

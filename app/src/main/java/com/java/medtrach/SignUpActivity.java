@@ -3,8 +3,10 @@ package com.java.medtrach;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.role.RoleManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,18 +14,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.annotations.NotNull;
 import com.java.medtrach.common.Common;
 import com.java.medtrach.common.LoadingAnimation;
 import com.java.medtrach.common.ValidateInput;
+import com.java.medtrach.model.RoleModel;
 import com.java.medtrach.model.UserModel;
 
 public class SignUpActivity extends AppCompatActivity {
+    private final String TAG = SignUpActivity.class.getSimpleName();
 
     ValidateInput validateInput;
     LoadingAnimation loadingAnimation;
@@ -36,13 +43,15 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private FirebaseDatabase mDatabase;
-    private DatabaseReference userReference;
+    private DatabaseReference userReference, roleRef;
 
     String userId, email, password, confirmPassword;
+    RoleModel roleModel = new RoleModel();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
@@ -56,10 +65,10 @@ public class SignUpActivity extends AppCompatActivity {
         loadingAnimation = new LoadingAnimation(SignUpActivity.this);
 
         mDatabase = FirebaseDatabase.getInstance();
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
+//        mUser = FirebaseAuth.getInstance().getCurrentUser();
         mAuth = FirebaseAuth.getInstance();
         userReference = FirebaseDatabase.getInstance().getReference(Common.USER_REF);
-
+        roleRef = FirebaseDatabase.getInstance().getReference(Common.ROLE_REF);
 
         validateInput = new ValidateInput(
             SignUpActivity.this, emailEditText, passwordEditText, confirmPasswordEditText
@@ -101,6 +110,7 @@ public class SignUpActivity extends AppCompatActivity {
                         // Firebase
                         mUser = FirebaseAuth.getInstance().getCurrentUser();
                         String userId = mUser.getUid().toString();
+                        String roleId = roleRef.push().getKey().toString();
 
                         UserModel userModel = new UserModel();
 
@@ -111,13 +121,35 @@ public class SignUpActivity extends AppCompatActivity {
                         userReference.child(userId).setValue(userModel);
 
                         if(task.isSuccessful()) {
-
                             // Redirect User to Home
-                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            //Loading animation
-                            loadingAnimation.dismissLoadingAnimation();
-                            finish();
+                            roleModel = new RoleModel();
+                            roleModel.setUserId(userId);
+                            roleModel.setRoleId(roleId);
+                            roleModel.setRoleType(Common.ROLE_USER);
+
+                            roleRef.child(userId).setValue(roleModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d(TAG, "onSuccess: Role registered");
+                                    if(userId != null) {
+                                        Intent intent = new Intent(SignUpActivity.this, LandingPageActivity.class);
+                                        intent.putExtra("userId", userId);
+                                        startActivity(intent);
+                                        //Loading animation
+                                        loadingAnimation.dismissLoadingAnimation();
+                                        finish();
+                                    } else {
+                                        Log.d(TAG, "onSuccess: userId: " + userId);
+                                    }
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull @NotNull Exception e) {
+                                    Log.d(TAG, "onFailure: " + e.getMessage());
+                                }
+                            });
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(SignUpActivity.this, "Fatal Error", Toast.LENGTH_SHORT).show();

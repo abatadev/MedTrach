@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
+import android.view.View;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -25,7 +26,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.NotNull;
 import com.java.medtrach.EventBus.MenuItemBack;
+import com.java.medtrach.common.Common;
+import com.java.medtrach.common.LoadingAnimation;
 import com.java.medtrach.model.UserModel;
 
 import androidx.annotation.NonNull;
@@ -50,6 +60,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private NavController navController;
+
+    private FirebaseAuth mAuth;
+    String userId;
+    private DatabaseReference roleRef;
 
     int LOCATION_REQUEST_CODE = 10001;
 
@@ -77,13 +91,64 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        LoadingAnimation loadingAnimation;
+
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu navMenu = navigationView.getMenu();
+        navigationView.setNavigationItemSelectedListener(this);
+//        navMenu.findItem(R.id.nav_drugs).setVisible(false);
+//        navMenu.findItem(R.id.nav_pharmacy).setVisible(false);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_pharmacy, R.id.nav_drugs)
+                R.id.nav_voice,
+                R.id.nav_pharmacy,
+                R.id.nav_drugs)
                 .setDrawerLayout(drawer)
                 .build();
+
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getUid();
+
+        roleRef = FirebaseDatabase.getInstance().getReference(Common.ROLE_REF);
+
+        Log.d(TAG, "onCreate: User ID: " + userId.toString());
+        roleRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    try {
+                        int roleType = snapshot.child("roleType").getValue(int.class);
+                        Log.d(TAG, "Role Type: " + roleType);
+                        switch(roleType) {
+                            case Common.ROLE_USER:
+                                Log.d(TAG, "onDataChange: Role Type: " + roleType);
+                                navMenu.findItem(R.id.nav_drugs).setVisible(false);
+                                navMenu.findItem(R.id.nav_pharmacy).setVisible(false);
+                                break;
+                            case Common.ROLE_ADMIN:
+                                Log.d(TAG, "onDataChange: Role Type: " + roleType);
+                                navMenu.findItem(R.id.nav_drugs).setVisible(true);
+                                navMenu.findItem(R.id.nav_pharmacy).setVisible(true);
+                                break;
+                            default:
+                                Log.d(TAG, "onDataChange: Triggered default case.");
+                                break;
+                        }
+                    } catch (NullPointerException e ) {
+                        Log.d(TAG, "onDataChange: " + e.getMessage().toString());
+                    }
+                } else {
+                    Log.d(TAG, "onDataChange: snapshot does not exist.");
+                    Log.d(TAG, "onDataChange: " + userId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
@@ -200,7 +265,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private void askLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(TAG, "askLocationPermission: Should show an alert dialog...");
                 ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
             } else {
                 ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
@@ -252,14 +317,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         menuItem.setChecked(true);
         drawer.closeDrawers();
         switch(menuItem.getItemId()) {
+            case R.id.nav_voice:
+                if(menuItem.getItemId() != menuClickId) {
+                    Log.d(TAG, "onNavigationItemSelected: " + menuClickId);
+                    navController.popBackStack();
+                    navController.navigate(R.id.nav_voice);
+                }
+                break;
             case R.id.nav_pharmacy:
                 if(menuItem.getItemId() != menuClickId) {
+                    Log.d(TAG, "onNavigationItemSelected: " + menuClickId);
                     navController.popBackStack();
                     navController.navigate(R.id.nav_pharmacy);
                 }
                 break;
             case R.id.nav_drugs:
                 if(menuItem.getItemId() != menuClickId) {
+                    Log.d(TAG, "onNavigationItemSelected: " + menuClickId);
                     navController.popBackStack();
                     navController.navigate(R.id.nav_drugs);
                 }

@@ -18,10 +18,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:baselineAligned="false"
                 android:weightSum="2">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1">
@@ -41,7 +42,7 @@
                     <TextView
                         android:id="@+id/maps_pharmacy_address_textView"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
                         android:drawableStart="@drawable/ic_baseline_location_on_24"
                         android:textSize="16sp"
@@ -54,9 +55,10 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" >
+                    android:orientation="vertical"
+                    android:layout_weight="1">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -100,12 +102,7 @@
                             android:layout_height="wrap_content" />
 
                     </LinearLayout>
-
-
                 </LinearLayout>
-
-
-
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
@@ -123,9 +120,7 @@
         android:textStyle="bold"
         android:text="Get Directions"/>
 
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.fragment.app.FragmentContainerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/map"

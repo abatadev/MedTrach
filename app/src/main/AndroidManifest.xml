@@ -20,6 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".LandingPageActivity"></activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -28,34 +29,29 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".ui.pharmacy.MapsPharmacyActivity"
+        <activity
+            android:name=".ui.pharmacy.MapsPharmacyActivity"
             android:label="Maps Pharmacy"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.pharmacy.PharmacyDetailedActivity"
+        <activity
+            android:name=".ui.pharmacy.PharmacyDetailedActivity"
             android:label="Detailed Pharmacy"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".ui.pharmacy.AddPharmacyActivity"
+        <activity
+            android:name=".ui.pharmacy.AddPharmacyActivity"
             android:label="Add Pharmacy"
-            android:theme="@style/AppTheme.NoActionBar"/>
-<!--        <activity android:name=".ui.catalogue.AddDrugActivity" />-->
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- <activity android:name=".ui.catalogue.AddDrugActivity" /> -->
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".ui.pharmacy.AddDrugActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".ui.pharmacy.AddDrugActivity"
             android:label="Add Drug"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_login"
@@ -63,7 +59,13 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"

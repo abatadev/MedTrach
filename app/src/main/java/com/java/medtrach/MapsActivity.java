@@ -201,6 +201,7 @@ public class MapsActivity extends AppCompatActivity implements
                 } else if (position == 1) {
                     mapModeStyle = MapModeStyle.DRIVING;
                     mapModeOption = "driving";
+
                     Log.d(TAG, "Map Mode Spinner: " + mapModeStyle);
                 }
             }
@@ -328,14 +329,20 @@ public class MapsActivity extends AppCompatActivity implements
             pharmacyMarker = googleMap.addMarker(markerOptions);
 
         }
+
+
         if (userMarker == null) {
             //Create a new marker
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car));
             markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
             userMarker = googleMap.addMarker(markerOptions);
+//            if(mapModeOption.equals("driving")) {
+//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.car));
+//            } else if (mapModeOption.equals("walking")){
+//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.person));
+//            }
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         } else {
             //use the previously created marker
@@ -348,7 +355,7 @@ public class MapsActivity extends AppCompatActivity implements
         if (userLocationAccuracyCircle == null) {
             CircleOptions circleOptions = new CircleOptions();
             circleOptions.center(latLng);
-            circleOptions.strokeWidth(4);
+            circleOptions.strokeWidth(6);
             circleOptions.strokeColor(Color.argb(255, 255, 0, 0));
             circleOptions.fillColor(Color.argb(32, 255, 0, 0));
             circleOptions.radius(location.getAccuracy());
@@ -401,6 +408,16 @@ public class MapsActivity extends AppCompatActivity implements
     }
 
     private void zoomToUserLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         Task<Location> locationTask = fusedLocationProviderClient.getLastLocation();
         locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override

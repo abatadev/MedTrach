@@ -105,7 +105,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()) {
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
+                            intent.putExtra("userId", mAuth.getUid());
                             startActivity(intent);
                             loadingAnimation.dismissLoadingAnimation();
                         } else {

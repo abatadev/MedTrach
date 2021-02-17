@@ -3,15 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group>
+        <item
+            android:id="@+id/nav_voice"
+            android:icon="@drawable/ic_baseline_mic_24"
+            android:title="@string/menu_voice" />
+    </group>
+
+    <group>
         <item
             android:id="@+id/nav_pharmacy"
             android:icon="@drawable/ic_baseline_home_24"
             android:title="@string/menu_pharmacy" />
+    </group>
+
+    <group>
         <item
             android:id="@+id/nav_drugs"
             android:icon="@drawable/ic_baseline_person_24"
             android:title="@string/menu_drugs" />
+    </group>
+
+    <group>
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_baseline_power_settings_new_24"

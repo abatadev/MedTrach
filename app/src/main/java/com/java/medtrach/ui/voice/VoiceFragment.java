@@ -1,4 +1,4 @@
-package com.java.medtrach.ui.pharmacy;
+package com.java.medtrach.ui.voice;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,50 +46,89 @@ import com.google.maps.android.SphericalUtil;
 import com.java.medtrach.MapsActivity;
 import com.java.medtrach.R;
 import com.java.medtrach.common.Common;
-import com.java.medtrach.common.LatLngInterpolator;
 import com.java.medtrach.model.DrugModel;
 import com.java.medtrach.model.PharmacyModel;
+import com.java.medtrach.ui.drug.DrugsViewHolder;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class PharmacyFragment extends Fragment {
+public class VoiceFragment extends Fragment {
+    private static final String TAG = VoiceFragment.class.getName();
+    public static final Integer RecordAudioRequestCode = 1;
+    private int LOCATION_REQUEST_CODE = 10001;
 
-    final String TAG = "CatalogueFragment";
+    //RecyclerView
+    private PharmacyModel pharmacyModel;
+    private List<DrugModel> drugModelList;
 
-    private EditText searchBarEditText;
-    private ImageView microphoneButton;
-    private Button addPharmacy;
-
-    private SpeechRecognizer speechRecognizer;
-    public  final Integer RecordAudioRequestCode = 1;
-
-    private RecyclerView.LayoutManager layoutManager;
     private RecyclerView recyclerView;
 
-    FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder> adapter;
-    FirebaseRecyclerOptions<PharmacyModel> options;
-    private DatabaseReference drugReference, pharmacyReference;
+    //Firebase
+    DatabaseReference pharmacyReference;
+    DatabaseReference drugReference;
+
+    FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder> adapter;
+    FirebaseRecyclerOptions<DrugModel> options;
+
+    private SpeechRecognizer speechRecognizer;
+
+    private EditText searchBarEditText;
+    private ImageView microphoneImageView;
+
     private FusedLocationProviderClient fusedLocationClient;
-    private LocationRequest locationRequest;
     private Double myLatitude, myLongitude;
     private LatLng myLatLng, pharmacyLatLng;
 
-    private DrugModel drugModel;
-
     @SuppressLint("ClickableViewAccessibility")
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_catalogue, container, false);
-        searchBarEditText = root.findViewById(R.id.catalogue_search_bar);
-        microphoneButton = root.findViewById(R.id.catalogue_microphone_image);
+        //Initialize Views and IDs
+        View root = inflater.inflate(R.layout.fragment_voice, container, false);
+        searchBarEditText = root.findViewById(R.id.searchViewEditText);
+        microphoneImageView = root.findViewById(R.id.microphoneImageView);
 
-        if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+        pharmacyModel = new PharmacyModel();
+
+        //Initialize adapter
+        recyclerView = (RecyclerView) root.findViewById(R.id.resultRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
+
+        //Initialize Firebase
+        pharmacyReference = FirebaseDatabase.getInstance().getReference(Common.PHARMACY_REF);
+        drugReference = FirebaseDatabase.getInstance().getReference(Common.DRUG_REF);
+
+
+//        checkPermission();
+        if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED){
             checkPermission();
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        fusedLocationClient.getLastLocation()
+            .addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if(location != null) {
+                        myLongitude = location.getLongitude();
+                        myLatitude = location.getLatitude();
+
+                        myLatLng = new LatLng(myLatitude, myLongitude);
+
+                        Log.d(TAG, "onSuccess: " + myLongitude);
+                        Log.d(TAG, "onSuccess: " + myLatitude);
+                    }
+                }
+            });
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -100,7 +138,6 @@ public class PharmacyFragment extends Fragment {
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
-
             }
 
             @Override
@@ -110,17 +147,14 @@ public class PharmacyFragment extends Fragment {
 
             @Override
             public void onRmsChanged(float v) {
-
             }
 
             @Override
             public void onBufferReceived(byte[] bytes) {
-
             }
 
             @Override
             public void onEndOfSpeech() {
-
             }
 
             @Override
@@ -130,7 +164,7 @@ public class PharmacyFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-                microphoneButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                microphoneImageView.setImageResource(R.drawable.ic_baseline_mic_off_24);
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 searchBarEditText.setText(StringUtils.capitalize(data.get(0)));
             }
@@ -145,55 +179,20 @@ public class PharmacyFragment extends Fragment {
 
             }
         });
-        microphoneButton.setOnTouchListener(new View.OnTouchListener() {
+
+        microphoneImageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-//                Toast.makeText(getContext(), "TESTING MIC!!!", Toast.LENGTH_SHORT).show();
-
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     speechRecognizer.stopListening();
+                    Log.d(TAG, "onTouch: Stop listening.");
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                    microphoneButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                    microphoneImageView.setImageResource(R.drawable.ic_baseline_mic_24);
                     speechRecognizer.startListening(speechRecognizerIntent);
+                    Log.d(TAG, "onTouch: Start listening.");
                 }
                 return false;
-            }
-        });
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if(location != null) {
-                            myLongitude = location.getLongitude();
-                            myLatitude = location.getLatitude();
-
-                            myLatLng = new LatLng(myLatitude, myLongitude);
-
-                            Log.d(TAG, "onSuccess: " + myLongitude);
-                            Log.d(TAG, "onSuccess: " + myLatitude);
-                        }
-                    }
-                });
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
-
-        drugModel = new DrugModel();
-
-        recyclerView = (RecyclerView) root.findViewById(R.id.catalogue_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
-
-        drugReference = FirebaseDatabase.getInstance().getReference().child(Common.DRUG_REF);
-        pharmacyReference = FirebaseDatabase.getInstance().getReference().child(Common.PHARMACY_REF);
-
-        root.findViewById(R.id.add_pharmacy_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), AddPharmacyActivity.class);
-                startActivity(intent);
             }
         });
 
@@ -212,57 +211,67 @@ public class PharmacyFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (editable.toString() != null) {
+                if(editable.toString() != null) {
                     loadData(editable.toString());
+                    adapter.startListening();
                 } else {
                     loadData("");
+                    adapter.startListening();
                 }
             }
         });
         return root;
     }
 
-    private void loadData(String data) {
-        Query query = pharmacyReference.orderByChild("pharmacyName").startAt(data).endAt(data + "\uf8ff");
 
-        options = new FirebaseRecyclerOptions.Builder<PharmacyModel>()
-                .setQuery(query, PharmacyModel.class)
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        if (requestCode == RecordAudioRequestCode && grantResults.length > 0 ){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                Toast.makeText(getContext(),"Permission Granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadData(String data) {
+        Query query = drugReference.orderByChild("drugName").startAt(data).endAt(data + "\uf8ff");
+
+        options = new FirebaseRecyclerOptions.Builder<DrugModel>()
+                .setQuery(query, DrugModel.class)
                 .build();
 
-        adapter = new FirebaseRecyclerAdapter<PharmacyModel, PharmacyViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<DrugModel, DrugsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final PharmacyViewHolder holder, int position, @NonNull PharmacyModel model) {
+            protected void onBindViewHolder(@NonNull DrugsViewHolder holder, final int position, @NonNull DrugModel model) {
+                final String myDrugId = model.getDrugId().toString();
+                final Double myPharmacyLatitude = model.getDrugPharmacyLatitude();
+                final Double myPharmacyLongitude = model.getDrugPharmacyLongitude();
 
-                final String myPharmacyId = model.getPharmacyId();
-                final String myPharmacyName = model.getPharmacyName();
-                final String myPharmacyLocation = model.getPharmacyLocation();
-                final Double myPharmacyLatitude = model.getPharmacyLocationY();
-                final Double myPharmacyLongitude = model.getPharmacyLocationX();
+                Log.d(TAG, "onBindViewHolder: Pharmacy Latitude: " + myPharmacyLatitude);
+                Log.d(TAG, "onBindViewHolder: Pharmacy Longitude: " + myPharmacyLongitude);
 
-                holder.pharmacyName.setText(myPharmacyName);
-                holder.pharmacyLocation.setText(myPharmacyLocation);
+                holder.drugName.setText(model.getDrugName());
+                holder.drugDescription.setText(model.getDrugDescription());
+                holder.pharmacyName.setText(model.getDrugPharmacyName());
+                holder.pharmacyLocation.setText(model.getDrugPharmacyLocation());
 
-                pharmacyReference.child(myPharmacyId).addListenerForSingleValueEvent(new ValueEventListener() {
-
+                drugReference.child(myDrugId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                        double distance;
 
-                        final String pharmacyId = snapshot.child("pharmacyId").getValue().toString();
-                        final String pharmacyName = snapshot.child("pharmacyName").getValue().toString();
-                        final String pharmacyLocation = snapshot.child("pharmacyLocation").getValue().toString();
-
-                        Log.d(TAG, "From Firebase Database");
-                        Log.d(TAG, "ID: " + pharmacyId);
-                        Log.d(TAG, "Name: " + pharmacyName);
-                        Log.d(TAG, "Location: " + pharmacyLocation);
+                        Log.d(TAG, "onDataChange: Drug ID " +  myDrugId);
+                        final String pharmacyId = snapshot.child("drugPharmacyId").getValue().toString();
+                        final String pharmacyName = snapshot.child("drugPharmacyName").getValue().toString();
+                        final String pharmacyLocation = snapshot.child("drugPharmacyLocation").getValue().toString();
 
                         pharmacyLatLng = new LatLng(myPharmacyLatitude, myPharmacyLongitude);
-                        try {
-                            distance = SphericalUtil.computeDistanceBetween(myLatLng, pharmacyLatLng) / 1000;
-                        } catch(NullPointerException e) {
-                            distance = 0.0;
-                        }
+                        double distance = SphericalUtil.computeDistanceBetween(myLatLng, pharmacyLatLng) / 1000;
                         String convertedDistance = String.format("%.2f", distance).toLowerCase();
 
                         Log.d(TAG, "onDataChange: Distance " + distance);
@@ -271,16 +280,13 @@ public class PharmacyFragment extends Fragment {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                Intent intent = new Intent(getActivity(), MapsActivity.class);
                                 try {
-                                    Intent intent = new Intent(getActivity(), PharmacyDetailedActivity.class);
-
                                     intent.putExtra("pharmacyId", pharmacyId);
                                     intent.putExtra("pharmacyName", pharmacyName);
                                     intent.putExtra("pharmacyLocation", pharmacyLocation);
-                                    intent.putExtra("pharmacyLongitude", myPharmacyLongitude);
                                     intent.putExtra("pharmacyLatitude", myPharmacyLatitude);
-
-
+                                    intent.putExtra("pharmacyLongitude", myPharmacyLongitude);
                                     startActivity(intent);
                                 } catch (NullPointerException e) {
                                     Toast.makeText(getContext(), "E: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -296,40 +302,39 @@ public class PharmacyFragment extends Fragment {
                 });
 
 
-
             }
 
             @NonNull
             @Override
-            public PharmacyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_pharmacy, parent, false);
-                return new PharmacyViewHolder(view);
+            public DrugsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_catalogue_drugs, parent, false);
+                return new DrugsViewHolder(view);
             }
-        };
 
-        adapter.startListening();
+
+        };
+//        adapter.startListening();
         recyclerView.setAdapter(adapter);
     }
 
-
     private void checkPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.RECORD_AUDIO},RecordAudioRequestCode);
-        }
-    }
+            ActivityCompat.requestPermissions(getActivity(), new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_NETWORK_STATE,
+                            Manifest.permission.RECORD_AUDIO},
+                    1);
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == RecordAudioRequestCode && grantResults.length > 0 ){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                Toast.makeText(getContext(),"Permission Granted", Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
         }
+
+        return;
     }
 
     @Override
     public void onStart() {
-        adapter.startListening();
+//        adapter.startListening();
         adapter.notifyDataSetChanged();
         super.onStart();
     }
@@ -345,5 +350,4 @@ public class PharmacyFragment extends Fragment {
         adapter.notifyDataSetChanged();
         super.onResume();
     }
-
 }

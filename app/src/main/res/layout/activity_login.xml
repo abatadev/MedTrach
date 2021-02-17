@@ -1,56 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity"
+    android:layout_margin="32dp"
     android:orientation="vertical"
-    android:layout_margin="32dp">
+    tools:context=".LoginActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="@color/colorGrey"
+        android:layout_marginBottom="16dp"
         android:fontFamily="sans-serif-condensed"
-        android:layout_marginBottom="16dp"/>
+        android:text="Login"
+        android:textColor="@color/colorGrey"
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/login_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:hint="Username"
-        android:inputType="textEmailAddress"
-        android:layout_marginBottom="8dp"/>
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/login_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:hint="Password"
-        android:inputType="textPassword"
-        android:layout_marginBottom="8dp"/>
+        android:inputType="textPassword" />
 
 
     <Button
         android:id="@+id/login_button"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:text="Login"
-        android:fontFamily="sans-serif-condensed"
-        android:textStyle="bold"
-        android:textColor="@color/colorWhite"
+        android:layout_marginBottom="16dp"
         android:background="@color/colorBlack"
-        android:layout_marginBottom="16dp"/>
+        android:fontFamily="sans-serif-condensed"
+        android:text="Login"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/login_sign_up_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Don't have an account yet? Sign Up Here"/>
+        android:text="Don't have an account yet? Sign Up Here" />
 
 
 </LinearLayout>
